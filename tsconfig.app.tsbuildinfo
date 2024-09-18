@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/animethemesresults.tsx","./src/components/recordbutton.tsx","./src/components/searchresults.tsx","./src/components/videoplayer.tsx","./src/pages/home.tsx","./src/pages/results.tsx","./src/services/api.ts","./src/types/index.ts"],"errors":true,"version":"5.6.2"}
