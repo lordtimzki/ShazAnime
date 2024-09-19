@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { FaMicrophone, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { identifySong } from "../services/api";
