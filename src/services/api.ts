@@ -64,49 +64,50 @@ export async function findAnimeTheme(
   songTitle: string
 ): Promise<AnimeThemeDetails | null> {
   try {
-    // Step 1: Find the artist
-    const artistSearchResponse = await axios.get(
+    // Step 1: Search for the song by title
+    const songSearchResponse = await axios.get(
       `${ANIME_THEMES_API_URL}/search`,
       {
         params: {
-          "fields[search]": "artists",
-          q: artistName,
+          "fields[search]": "animethemes",
+          q: songTitle,
         },
       }
     );
-    const artistSlug = artistSearchResponse.data.search.artists[0]?.slug;
-    if (!artistSlug) throw new Error("Artist not found");
+    console.log("Song Search Response:", songSearchResponse.data);
+    const themes = songSearchResponse.data.search.animethemes;
 
-    // Step 2: Get artist's songs
-    const artistSongsResponse = await axios.get(
-      `${ANIME_THEMES_API_URL}/artist/${artistSlug}`,
-      {
-        params: { include: "songs" },
+    // Step 2: Iterate through the list and fetch detailed information for each theme
+    for (const theme of themes) {
+      const themeDetailsResponse = await axios.get(
+        `${ANIME_THEMES_API_URL}/animetheme/${theme.id}`,
+        {
+          params: { include: "anime,animethemeentries.videos,song.artists" },
+        }
+      );
+      console.log("Theme Details Response:", themeDetailsResponse.data);
+      const themeDetails = themeDetailsResponse.data.animetheme;
+
+      // Step 3: Check if the artist matches the desired artist
+      if (
+        themeDetails.song.artists.some(
+          (artist: any) =>
+            artist.name.toLowerCase() === artistName.toLowerCase()
+        )
+      ) {
+        return {
+          artistName: themeDetails.song.artists[0].name,
+          songName: themeDetails.song.title,
+          animeName: themeDetails.anime.name,
+          themeType: themeDetails.type,
+          sequence: themeDetails.sequence,
+          year: themeDetails.anime.year,
+          videoLink: themeDetails.animethemeentries[0]?.videos[0]?.link || "",
+        };
       }
-    );
-    const song = artistSongsResponse.data.artist.songs.find(
-      (s: any) => s.title.toLowerCase() === songTitle.toLowerCase()
-    );
-    if (!song) throw new Error("Song not found");
+    }
 
-    // Step 3: Get anime theme details
-    const themeDetailsResponse = await axios.get(
-      `${ANIME_THEMES_API_URL}/animetheme/${song.id}`,
-      {
-        params: { include: "anime,animethemeentries.videos,song.artists" },
-      }
-    );
-    const themeDetails = themeDetailsResponse.data.animetheme;
-
-    return {
-      artistName: themeDetails.song.artists[0].name,
-      songName: themeDetails.song.title,
-      animeName: themeDetails.anime.name,
-      themeType: themeDetails.type,
-      sequence: themeDetails.sequence,
-      year: themeDetails.anime.year,
-      videoLink: themeDetails.animethemeentries[0]?.videos[0]?.link || "",
-    };
+    throw new Error("Matching theme not found");
   } catch (error) {
     console.error("Error finding anime theme:", error);
     return null;
