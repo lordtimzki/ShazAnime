@@ -5,3 +5,13 @@ export interface SongInfo {
   album?: string;
   release_date?: string;
 }
+
+export interface AnimeThemeDetails {
+  artistName: string;
+  songName: string;
+  animeName: string;
+  themeType: string;
+  sequence: number;
+  year: number;
+  videoLink: string;
+}
