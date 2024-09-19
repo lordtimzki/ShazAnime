@@ -1,36 +1,26 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { searchAnimeTheme } from "../services/api";
+import { SongInfo } from "../types"; // Make sure to create this type file if you haven't already
 
-interface SearchResultsProps {
-  songData: {
-    result: {
-      title: string;
-      artist: string;
-    };
-  };
-}
-
-interface AnimeTheme {
-  id: string;
-  title: string;
-  anime: string;
-  type: string;
-  year: number;
-}
-
-export default function SearchResults({ songData }: SearchResultsProps) {
-  const [animeThemes, setAnimeThemes] = useState<AnimeTheme[]>([]);
+const SearchResults: React.FC = () => {
+  const [themes, setThemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const location = useLocation();
+  const songData = location.state?.songData as SongInfo;
 
   useEffect(() => {
-    const fetchAnimeThemes = async () => {
+    const fetchThemes = async () => {
+      if (!songData) {
+        setError("No song data available");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const themes = await searchAnimeTheme({
-          title: songData.result.title,
-          artist: songData.result.artist,
-        });
-        setAnimeThemes(themes);
+        const themesData = await searchAnimeTheme(songData);
+        setThemes(themesData.resources || []);
       } catch (err) {
         setError("Failed to fetch anime themes");
         console.error(err);
@@ -39,33 +29,43 @@ export default function SearchResults({ songData }: SearchResultsProps) {
       }
     };
 
-    fetchAnimeThemes();
+    fetchThemes();
   }, [songData]);
 
   if (loading) return <div>Loading anime themes...</div>;
   if (error) return <div>Error: {error}</div>;
+  if (!songData) return <div>No song data available</div>;
 
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">Identified Song</h2>
-      <p>Title: {songData.result.title}</p>
-      <p>Artist: {songData.result.artist}</p>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-8">Results</h1>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Identified Song</h2>
+        <p>Title: {songData.title}</p>
+        {songData.title !== songData.originalTitle && (
+          <p>Original Title: {songData.originalTitle}</p>
+        )}
+        <p>Artist: {songData.artist}</p>
+      </div>
 
       <h2 className="text-2xl font-bold mt-8 mb-4">Matching Anime Themes</h2>
-      {animeThemes.length === 0 ? (
+      {themes.length === 0 ? (
         <p>No matching anime themes found.</p>
       ) : (
         <ul className="space-y-4">
-          {animeThemes.map((theme) => (
+          {themes.map((theme: any) => (
             <li key={theme.id} className="border p-4 rounded-lg">
-              <h3 className="text-xl font-semibold">{theme.title}</h3>
-              <p>Anime: {theme.anime}</p>
+              <h3 className="text-xl font-semibold">{theme.name}</h3>
+              <p>Anime: {theme.anime?.name}</p>
+              <p>Song: {theme.song?.title}</p>
               <p>Type: {theme.type}</p>
-              <p>Year: {theme.year}</p>
+              {/* Add more theme details as needed */}
             </li>
           ))}
         </ul>
       )}
     </div>
   );
-}
+};
+
+export default SearchResults;

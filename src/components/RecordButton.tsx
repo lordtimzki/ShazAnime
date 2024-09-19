@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { FaMicrophone, FaStop } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { identifySong } from "../services/api";
-import { toast } from "react-toastify";
+import { SongInfo } from "../types";
 
 export default function RecordButton() {
   const [isRecording, setIsRecording] = useState(false);
@@ -27,6 +27,9 @@ export default function RecordButton() {
       setIsRecording(true);
     } catch (error) {
       console.error("Error accessing microphone:", error);
+      alert(
+        "Error accessing microphone. Please check your microphone settings."
+      );
     }
   };
 
@@ -41,16 +44,17 @@ export default function RecordButton() {
     setIsProcessing(true);
     const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
     try {
-      const songData = await identifySong(audioBlob);
-      console.log("Identified song:", songData);
-      if (songData.result) {
-        navigate("/results", { state: { songData } });
+      const songInfo: SongInfo = await identifySong(audioBlob);
+      console.log("Identified song:", songInfo);
+      if (songInfo && songInfo.title) {
+        navigate("/results", { state: { songInfo } });
       } else {
-        toast.warn("No song was identified. Try recording a longer sample.");
+        console.log("No song identified");
+        alert("No song identified. Please try again.");
       }
     } catch (error) {
       console.error("Error identifying song:", error);
-      toast.error("Failed to identify the song. Please try again.");
+      alert("Error identifying song. Please try again.");
     } finally {
       setIsProcessing(false);
     }

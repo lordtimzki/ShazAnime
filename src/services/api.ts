@@ -1,10 +1,11 @@
 import axios from "axios";
+import { SongInfo } from "../types/index";
 
 const AUDD_API_URL = "https://api.audd.io/";
 const AUDD_API_TOKEN = "d9326b0b75862bb67e64af7b59698446";
 const ANIME_THEMES_API_URL = "https://api.animethemes.moe";
 
-export async function identifySong(audioData: Blob): Promise<any> {
+export async function identifySong(audioData: Blob): Promise<SongInfo> {
   const formData = new FormData();
   formData.append("file", audioData, "audio.webm");
   formData.append("return", "apple_music,spotify");
@@ -14,24 +15,30 @@ export async function identifySong(audioData: Blob): Promise<any> {
     const response = await axios.post(AUDD_API_URL, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data;
+
+    const result = response.data.result;
+
+    const songInfo: SongInfo = {
+      title: result.apple_music?.name || result.title, // Prioritize English title
+      originalTitle: result.title,
+      artist: result.artist,
+      // ... other fields
+    };
+
+    return songInfo;
   } catch (error) {
     console.error("Error identifying song:", error);
     throw error;
   }
 }
 
-export async function searchAnimeTheme(songInfo: {
-  title: string;
-  artist: string;
-}): Promise<any> {
+export async function searchAnimeTheme(songInfo: SongInfo): Promise<any> {
   try {
-    console.log("Searching for anime theme:", songInfo);
     const response = await axios.get(`${ANIME_THEMES_API_URL}/search`, {
       params: {
-        q: `${songInfo.title} ${songInfo.artist}`,
-        fields: ["song"],
-        include: "animethemes.anime,animethemes.animethemeentries.videos",
+        q: `${songInfo.title}`,
+        include:
+          "animethemes.animethemeentries.videos,animethemes.song,animethemes.song.artists",
       },
     });
     console.log("AnimeThemes API Response:", response.data);
