@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { identifySong } from "../services/api";
 import { SongInfo } from "../types";
 
-export default function RecordButton() {
+interface RecordButtonProps {
+  onClick?: () => void;
+}
+
+export default function RecordButton({ onClick }: RecordButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -65,6 +69,9 @@ export default function RecordButton() {
       stopRecording();
     } else {
       startRecording();
+    }
+    if (onClick) {
+      onClick();
     }
   };
 
