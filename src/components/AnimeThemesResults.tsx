@@ -68,7 +68,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({ songInfo }) => {
         <p className="text-xl italic mb-2">
           "{themeDetails.songName}" by {themeDetails.artistName}
         </p>
-        <span>{themeDetails.year}</span>
+        <span className="text-lg">{themeDetails.year}</span>
       </div>
     </div>
   );
