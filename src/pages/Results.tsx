@@ -21,7 +21,7 @@ export default function Results() {
   return (
     <div className="p-8 flex flex-col items-center">
       <h1 className="text-3xl font-bold mb-8">Results</h1>
-      <AnimeThemeResults songInfo={songInfo} />
+      <AnimeThemeResults songInfo={songInfo} onNewSong={(songInfo) => {}} />
     </div>
   );
 }
