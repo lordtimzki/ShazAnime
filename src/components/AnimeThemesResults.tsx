@@ -39,32 +39,36 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({ songInfo }) => {
   if (!themeDetails) return <div>No matching anime theme found.</div>;
 
   return (
-    <div className="flex flex-col md:flex-row justify-between">
-      <div className="md:w-1/2">
-        <h2 className="text-2xl font-bold mt-8 mb-4">Anime Theme Details</h2>
-        <p>Artist: {themeDetails.artistName}</p>
-        <p>Song: {themeDetails.songName}</p>
-        <p>Anime: {themeDetails.animeName}</p>
-        <p>
-          Type: {themeDetails.themeType}
-          {themeDetails.sequence}
-        </p>
-        <p>Year: {themeDetails.year}</p>
-      </div>
-      <div className="md:w-1/2 mt-8 md:mt-0">
-        {themeDetails.videoLink ? (
+    <div className="flex flex-col items-center justify-center p-4">
+      {themeDetails.videoLink ? (
+        <div className="w-full max-w-3xl mb-4 relative">
           <video
             src={themeDetails.videoLink}
             controls
             autoPlay
-            loop
-            className="w-full"
+            className="w-full h-auto max-h-[768px] rounded-lg shadow-lg transition duration-300"
           >
             Your browser does not support the video tag.
           </video>
-        ) : (
-          <p>No video available for this theme.</p>
-        )}
+        </div>
+      ) : (
+        <p>No video available for this theme.</p>
+      )}
+      <div className="w-full pl-5">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-2xl">
+            {themeDetails.animeName}
+            <span className="font-bold">
+              {" "}
+              {themeDetails.themeType}
+              {themeDetails.sequence}
+            </span>
+          </h2>
+        </div>
+        <p className="text-xl italic mb-2">
+          "{themeDetails.songName}" by {themeDetails.artistName}
+        </p>
+        <span>{themeDetails.year}</span>
       </div>
     </div>
   );
