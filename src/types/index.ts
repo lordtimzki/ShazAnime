@@ -7,7 +7,7 @@ export interface SongInfo {
 }
 
 export interface AnimeThemeDetails {
-  artistName: string;
+  artistNames: string[];
   songName: string;
   animeName: string;
   themeType: string;
