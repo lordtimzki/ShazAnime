@@ -12,7 +12,7 @@ API: [AuDD](https://audd.io/), [r/AnimeThemes](https://api-docs.animethemes.moe/
 
 
 ### Bugs
-Not every anime song exists in the AnimeThemes database. I've deducted some reasons the audio recognition might not work. <br> 
+It's not entirely accurate. I've deducted some reasons the audio recognition might not work. <br> 
 <ol>
   <li>AuDD recognizes the wrong song
   <ul>
