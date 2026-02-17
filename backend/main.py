@@ -53,42 +53,22 @@ async def recognize(file: UploadFile = File(...)):
     images = track.get("images", {})
     cover_art = images.get("coverarthq") or images.get("coverart") or ""
 
-    # Extract Apple Music web link from hub
+    # Extract Apple Music link — use adamid (most reliable)
     apple_music_url = ""
-    hub = track.get("hub", {})
-
-    def find_https_uri(actions):
-        """Find the first https:// URI from a list of hub actions."""
-        for action in actions:
-            uri = action.get("uri", "")
-            if uri.startswith("https://"):
-                return uri
-        return ""
-
-    # 1) hub.options (OPEN / APPLE_MUSIC provider)
-    for option in hub.get("options", []):
-        apple_music_url = find_https_uri(option.get("actions", []))
-        if apple_music_url:
-            break
-    # 2) hub.providers
-    if not apple_music_url:
-        for provider in hub.get("providers", []):
-            if "apple" in provider.get("type", "").lower():
-                apple_music_url = find_https_uri(provider.get("actions", []))
-                if apple_music_url:
+    adamid = track.get("adamid")
+    if adamid:
+        apple_music_url = f"https://music.apple.com/song/{adamid}"
+    else:
+        # Fallback: search hub for a real music.apple.com URL
+        hub = track.get("hub", {})
+        for option in hub.get("options", []):
+            for action in option.get("actions", []):
+                uri = action.get("uri", "")
+                if "music.apple.com" in uri:
+                    apple_music_url = uri
                     break
-    # 3) hub.actions (top-level)
-    if not apple_music_url:
-        for action in hub.get("actions", []):
-            uri = action.get("uri", "")
-            if uri.startswith("https://") and "apple" in uri:
-                apple_music_url = uri
+            if apple_music_url:
                 break
-    # 4) Construct from Apple Music catalog ID (adamid)
-    if not apple_music_url:
-        adamid = track.get("adamid")
-        if adamid:
-            apple_music_url = f"https://music.apple.com/song/{adamid}"
 
     # Shazam web URL
     shazam_url = track.get("url", "")
