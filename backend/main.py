@@ -1,5 +1,4 @@
 import os
-import ssl
 import certifi
 import tempfile
 
@@ -20,6 +19,11 @@ app.add_middleware(
 )
 
 shazam = Shazam()
+
+
+@app.get("/")
+async def health():
+    return {"status": "ok"}
 
 
 @app.post("/recognize")
