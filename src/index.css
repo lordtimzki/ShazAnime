@@ -84,6 +84,22 @@ body {
   background: #2a528a;
 }
 
+/* ---- PiP player animation ---- */
+@keyframes pipEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-pip-enter {
+  animation: pipEnter 0.3s ease-out forwards;
+}
+
 /* ---- Material Symbols sizing helper ---- */
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;

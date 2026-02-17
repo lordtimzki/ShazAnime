@@ -1,4 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useVideo } from "../contexts/VideoContext";
+import PiPPlayer from "./PiPPlayer";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -7,6 +9,15 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { videoState, setIsPiPVisible } = useVideo();
+
+  const handleNavigate = (path: string) => {
+    // If leaving /results with an active video, activate PiP
+    if (location.pathname === "/results" && videoState.videoUrl) {
+      setIsPiPVisible(true);
+    }
+    navigate(path);
+  };
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -15,7 +26,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Left — Logo */}
         <div
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/")}
+          onClick={() => handleNavigate("/")}
         >
           <div className="flex items-center justify-center size-10 rounded-full bg-gradient-to-tr from-primary to-accent-blue text-white shadow-[0_0_15px_rgba(0,136,255,0.5)]">
             <span className="material-symbols-outlined text-2xl">
@@ -30,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Center — Nav */}
         <nav className="hidden md:flex items-center justify-center gap-8">
           <button
-            onClick={() => navigate("/history")}
+            onClick={() => handleNavigate("/history")}
             className={`hover:text-white transition-colors text-sm font-medium ${
               location.pathname === "/history"
                 ? "text-white"
@@ -40,12 +51,7 @@ export default function Layout({ children }: LayoutProps) {
             History
           </button>
           <button
-            onClick={() => navigate("/about")}
-            className={`hover:text-white transition-colors text-sm font-medium ${
-              location.pathname === "/about"
-                ? "text-white"
-                : "text-text-dim"
-            }`}
+            className="text-text-dim hover:text-white transition-colors text-sm font-medium"
           >
             About
           </button>
@@ -55,7 +61,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex items-center justify-end gap-4">
           <button
             className="md:hidden text-white"
-            onClick={() => navigate("/history")}
+            onClick={() => handleNavigate("/history")}
           >
             <span className="material-symbols-outlined">history</span>
           </button>
@@ -64,6 +70,9 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main content */}
       <main className="flex-grow pt-[72px]">{children}</main>
+
+      {/* Floating PiP player */}
+      <PiPPlayer />
 
       {/* Footer */}
       <footer className="w-full border-t border-surface-border bg-surface-darker py-6 px-6 mt-auto relative z-10">
