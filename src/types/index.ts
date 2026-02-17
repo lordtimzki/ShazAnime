@@ -7,6 +7,7 @@ export interface SongInfo {
   coverArt?: string;
   appleMusicUrl?: string;
   appleMusicId?: string;
+  spotifyUrl?: string;
   shazamUrl?: string;
 }
 

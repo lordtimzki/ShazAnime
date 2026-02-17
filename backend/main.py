@@ -1,6 +1,7 @@
 import os
 import certifi
 import tempfile
+import httpx
 
 # Fix SSL certificate verification on macOS
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -73,6 +74,24 @@ async def recognize(file: UploadFile = File(...)):
     # Shazam web URL
     shazam_url = track.get("url", "")
 
+    # Fetch Spotify link via Odesli (server-side to avoid CORS)
+    spotify_url = ""
+    try:
+        async with httpx.AsyncClient() as client:
+            if adamid:
+                odesli_url = f"https://api.song.link/v1-alpha.1/links?platform=appleMusic&type=song&id={adamid}"
+            elif apple_music_url:
+                odesli_url = f"https://api.song.link/v1-alpha.1/links?url={apple_music_url}"
+            else:
+                odesli_url = None
+            if odesli_url:
+                resp = await client.get(odesli_url, timeout=5.0)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    spotify_url = data.get("linksByPlatform", {}).get("spotify", {}).get("url", "")
+    except Exception:
+        pass  # Spotify link is optional
+
     return {
         "title": title,
         "originalTitle": title,
@@ -80,5 +99,6 @@ async def recognize(file: UploadFile = File(...)):
         "coverArt": cover_art,
         "appleMusicUrl": apple_music_url,
         "appleMusicId": adamid or "",
+        "spotifyUrl": spotify_url,
         "shazamUrl": shazam_url,
     }

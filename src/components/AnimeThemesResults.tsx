@@ -20,7 +20,6 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [spotifyUrl, setSpotifyUrl] = useState<string | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { videoState, videoRef, setActiveVideo, setIsPiPVisible, mountVideoTo } =
@@ -77,31 +76,6 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
     }
   }, [themeDetails, mountVideoTo, videoRef]);
 
-  // Fetch Spotify link via Odesli/song.link
-  useEffect(() => {
-    setSpotifyUrl(null);
-    const fetchSpotify = async () => {
-      try {
-        // Prefer platform+id lookup (most reliable), fall back to URL lookup
-        let apiUrl: string;
-        if (songInfo.appleMusicId) {
-          apiUrl = `https://api.song.link/v1-alpha.1/links?platform=appleMusic&type=song&id=${songInfo.appleMusicId}`;
-        } else {
-          const lookupUrl = songInfo.appleMusicUrl || songInfo.shazamUrl;
-          if (!lookupUrl) return;
-          apiUrl = `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(lookupUrl)}`;
-        }
-        const res = await fetch(apiUrl);
-        if (!res.ok) return;
-        const data = await res.json();
-        const spotify = data.linksByPlatform?.spotify?.url;
-        if (spotify) setSpotifyUrl(spotify);
-      } catch {
-        // Silently fail — Spotify link is optional
-      }
-    };
-    fetchSpotify();
-  }, [songInfo.appleMusicId, songInfo.appleMusicUrl, songInfo.shazamUrl]);
 
   // Loading state
   if (loading) {
@@ -290,7 +264,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
             </div>
 
             {/* Streaming links row */}
-            {(songInfo.appleMusicUrl || spotifyUrl) && (
+            {(songInfo.appleMusicUrl || songInfo.spotifyUrl) && (
               <div className="flex gap-3">
                 {/* Apple Music button */}
                 {songInfo.appleMusicUrl && (
@@ -308,9 +282,9 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
                 )}
 
                 {/* Spotify button */}
-                {spotifyUrl && (
+                {songInfo.spotifyUrl && (
                   <a
-                    href={spotifyUrl}
+                    href={songInfo.spotifyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#1DB954]/10 hover:bg-[#1DB954]/20 text-[#1DB954] rounded-lg transition-colors border border-[#1DB954]/20"
