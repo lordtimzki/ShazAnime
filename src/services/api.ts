@@ -75,8 +75,13 @@ async function searchThemes(title: string): Promise<any[]> {
   return response.data.data?.search?.animethemes || [];
 }
 
-const artistMappings: Record<string, string> = artistMappingsJson;
-const songMappings: Record<string, { title: string; artist?: string }> = songMappingsJson;
+// Normalize keys to lowercase so lookups are always case-insensitive
+const artistMappings: Record<string, string> = Object.fromEntries(
+  Object.entries(artistMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
+);
+const songMappings: Record<string, { title: string; artist?: string }> = Object.fromEntries(
+  Object.entries(songMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
+);
 
 function getMappedArtistName(artist: string): string {
   const normalizedArtist = artist.trim().toLowerCase();
@@ -92,13 +97,17 @@ function getMappedArtistName(artist: string): string {
   return mappedName;
 }
 
-/** Returns the mapped song title if one exists (optionally constrained by artist). */
-function getMappedSongTitle(title: string, artist: string): string | null {
+/** Returns the mapped song title if one exists (optionally constrained by artist).
+ *  The artist filter matches against either the raw Shazam artist or the mapped AnimeThemes artist,
+ *  so entries in songMappings can use either name. */
+function getMappedSongTitle(title: string, rawArtist: string, mappedArtist: string): string | null {
   const key = title.trim().toLowerCase();
   const mapping = songMappings[key];
   if (!mapping) return null;
-  // If the mapping specifies an artist, only apply it when the artist matches
-  if (mapping.artist && !artist.toLowerCase().includes(mapping.artist.toLowerCase())) return null;
+  if (mapping.artist) {
+    const filter = mapping.artist.toLowerCase();
+    if (!rawArtist.toLowerCase().includes(filter) && !mappedArtist.toLowerCase().includes(filter)) return null;
+  }
   console.log(`Song mapping: "${title}" → "${mapping.title}"`);
   return mapping.title;
 }
@@ -187,7 +196,7 @@ export async function findAnimeTheme(
 ): Promise<AnimeThemeDetails | null> {
   try {
     const mappedArtistName = getMappedArtistName(artistName);
-    const mappedSongTitle = getMappedSongTitle(songTitle, artistName) ?? songTitle;
+    const mappedSongTitle = getMappedSongTitle(songTitle, artistName, mappedArtistName) ?? songTitle;
 
     // Search by full title — GraphQL returns all nested data in one query
     let themes = await searchThemes(mappedSongTitle);
