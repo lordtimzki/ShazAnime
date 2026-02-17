@@ -1,9 +1,10 @@
 FROM python:3.12-slim
 
-# Install system dependencies for shazamio-core (Rust native extension)
+# Install system dependencies for shazamio-core and audio processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libasound2-dev \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
