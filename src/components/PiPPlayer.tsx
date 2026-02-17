@@ -14,12 +14,25 @@ export default function PiPPlayer() {
   const shouldShow =
     isPiPVisible && location.pathname !== "/results" && videoState.videoUrl;
 
-  // Restore playback time when PiP appears
+  // Restore playback time when PiP video loads
   useEffect(() => {
-    if (shouldShow && videoRef.current) {
-      videoRef.current.currentTime = videoState.currentTime;
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!shouldShow || !video) return;
+
+    const seekAndPlay = () => {
+      video.currentTime = videoState.currentTime;
+      video.play().catch(() => {});
+    };
+
+    // If video is already loaded enough, seek immediately
+    if (video.readyState >= 1) {
+      seekAndPlay();
+    } else {
+      // Wait for metadata to load before seeking
+      video.addEventListener("loadedmetadata", seekAndPlay, { once: true });
+      return () => video.removeEventListener("loadedmetadata", seekAndPlay);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldShow]);
 
   // Save playback time periodically
@@ -89,7 +102,7 @@ export default function PiPPlayer() {
               ref={videoRef}
               src={videoState.videoUrl}
               className="w-full aspect-video bg-black"
-              muted={false}
+              autoPlay
             />
             {/* Overlay on hover */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

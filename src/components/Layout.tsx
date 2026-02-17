@@ -51,7 +51,12 @@ export default function Layout({ children }: LayoutProps) {
             History
           </button>
           <button
-            className="text-text-dim hover:text-white transition-colors text-sm font-medium"
+            onClick={() => handleNavigate("/about")}
+            className={`hover:text-white transition-colors text-sm font-medium ${
+              location.pathname === "/about"
+                ? "text-white"
+                : "text-text-dim"
+            }`}
           >
             About
           </button>

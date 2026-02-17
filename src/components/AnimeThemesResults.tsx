@@ -20,6 +20,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [spotifyUrl, setSpotifyUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
   const { videoState, setActiveVideo, savePlaybackTime, setIsPiPVisible } =
@@ -81,6 +82,26 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
     video.addEventListener("timeupdate", handleTimeUpdate);
     return () => video.removeEventListener("timeupdate", handleTimeUpdate);
   }, [themeDetails, savePlaybackTime]);
+
+  // Fetch Spotify link via Odesli/song.link
+  useEffect(() => {
+    if (!songInfo.appleMusicUrl) return;
+    setSpotifyUrl(null);
+    const fetchSpotify = async () => {
+      try {
+        const res = await fetch(
+          `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(songInfo.appleMusicUrl!)}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const spotify = data.linksByPlatform?.spotify?.url;
+        if (spotify) setSpotifyUrl(spotify);
+      } catch {
+        // Silently fail — Spotify link is optional
+      }
+    };
+    fetchSpotify();
+  }, [songInfo.appleMusicUrl]);
 
   // Loading state
   if (loading) {
@@ -222,18 +243,6 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
               </div>
             )}
           </div>
-
-          {/* Re-scan button */}
-          <RecordButton
-            compact
-            onIdentified={(newSongInfo) => {
-              if (videoRef.current) videoRef.current.pause();
-              onNewSong(newSongInfo);
-            }}
-            onClick={() => {
-              if (videoRef.current) videoRef.current.pause();
-            }}
-          />
         </div>
 
       {/* Right column — Details sidebar */}
@@ -288,19 +297,39 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
               </p>
             </div>
 
-            {/* Apple Music button */}
-            {songInfo.appleMusicUrl && (
-              <a
-                href={songInfo.appleMusicUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 p-3 bg-[#FA243C]/10 hover:bg-[#FA243C]/20 text-[#FA243C] rounded-lg transition-colors border border-[#FA243C]/20 w-full"
-              >
-                <svg className="size-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.893 3.636h.634c-1.332 0-2.55.223-3.606.608-1.11.405-2.028.941-2.921 1.701-.893-.76-1.811-1.296-2.921-1.701-1.056-.385-2.274-.608-3.606-.608h-.634C2.19 3.636 0 5.826 0 8.476v11.77c0 .066.054.118.12.118h5.688c.066 0 .12-.052.12-.118V8.95c1.474-.356 2.651.192 3.426.79.053.041.127.041.18 0 .47-.361.968-.68 1.488-.952.484-.253.987-.457 1.503-.608.281-.082.566-.142.853-.178V20.246c0 .066.054.118.12.118h5.688c.066 0 .12-.052.12-.118V8.476c0-2.65-2.19-4.84-4.839-4.84zm-9.352 14.832c-1.352-1.039-3.235-1.01-4.707-.468v-8.58c1.688-.475 3.518-.328 4.707.575v8.473zm10.745-.468c-1.472-.542-3.355-.571-4.707.468V9.595c1.19-1.012 3.197-1.037 4.707-.575v8.582z" />
-                </svg>
-                <span className="text-sm font-bold">Open in Apple Music</span>
-              </a>
+            {/* Streaming links row */}
+            {(songInfo.appleMusicUrl || spotifyUrl) && (
+              <div className="flex gap-3">
+                {/* Apple Music button */}
+                {songInfo.appleMusicUrl && (
+                  <a
+                    href={songInfo.appleMusicUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#FA243C]/10 hover:bg-[#FA243C]/20 text-[#FA243C] rounded-lg transition-colors border border-[#FA243C]/20"
+                  >
+                    <svg className="size-5" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="m10.995 0 .573.001q.241 0 .483.007c.35.01.705.03 1.051.093.352.063.68.166.999.329a3.36 3.36 0 0 1 1.47 1.468c.162.32.265.648.328 1 .063.347.084.7.093 1.051q.007.241.007.483l.001.573v5.99l-.001.573q0 .241-.008.483c-.01.35-.03.704-.092 1.05a3.5 3.5 0 0 1-.33 1 3.36 3.36 0 0 1-1.468 1.468 3.5 3.5 0 0 1-1 .33 7 7 0 0 1-1.05.092q-.241.007-.483.008l-.573.001h-5.99l-.573-.001q-.241 0-.483-.008a7 7 0 0 1-1.052-.092 3.6 3.6 0 0 1-.998-.33 3.36 3.36 0 0 1-1.47-1.468 3.6 3.6 0 0 1-.328-1 7 7 0 0 1-.093-1.05Q.002 11.81 0 11.568V5.005l.001-.573q0-.241.007-.483c.01-.35.03-.704.093-1.05a3.6 3.6 0 0 1 .329-1A3.36 3.36 0 0 1 1.9.431 3.5 3.5 0 0 1 2.896.1 7 7 0 0 1 3.95.008Q4.19.002 4.432 0h.573zm-.107 2.518-4.756.959H6.13a.66.66 0 0 0-.296.133.5.5 0 0 0-.16.31c-.004.027-.01.08-.01.16v5.952c0 .14-.012.275-.106.39-.095.115-.21.15-.347.177l-.31.063c-.393.08-.65.133-.881.223a1.4 1.4 0 0 0-.519.333 1.25 1.25 0 0 0-.332.995c.031.297.166.582.395.792.156.142.35.25.578.296.236.047.49.031.858-.043.196-.04.38-.102.555-.205a1.4 1.4 0 0 0 .438-.405 1.5 1.5 0 0 0 .233-.55c.042-.202.052-.386.052-.588V6.347c0-.276.08-.35.302-.404.024-.005 3.954-.797 4.138-.833.257-.049.378.025.378.294v3.524c0 .14-.001.28-.096.396-.094.115-.211.15-.348.178l-.31.062c-.393.08-.649.133-.88.223a1.4 1.4 0 0 0-.52.334 1.26 1.26 0 0 0-.34.994c.03.297.174.582.404.792a1.2 1.2 0 0 0 .577.294c.237.048.49.03.858-.044.197-.04.381-.098.556-.202a1.4 1.4 0 0 0 .438-.405q.173-.252.233-.549a2.7 2.7 0 0 0 .044-.589V2.865c0-.273-.143-.443-.4-.42-.04.003-.383.064-.424.073" />
+                    </svg>
+                    <span className="text-sm font-bold">Apple Music</span>
+                  </a>
+                )}
+
+                {/* Spotify button */}
+                {spotifyUrl && (
+                  <a
+                    href={spotifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#1DB954]/10 hover:bg-[#1DB954]/20 text-[#1DB954] rounded-lg transition-colors border border-[#1DB954]/20"
+                  >
+                    <svg className="size-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                    </svg>
+                    <span className="text-sm font-bold">Spotify</span>
+                  </a>
+                )}
+              </div>
             )}
 
             {/* Shazam link */}
@@ -317,6 +346,18 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
             )}
           </div>
         </div>
+
+        {/* Re-scan button */}
+        <RecordButton
+          compact
+          onIdentified={(newSongInfo) => {
+            if (videoRef.current) videoRef.current.pause();
+            onNewSong(newSongInfo);
+          }}
+          onClick={() => {
+            if (videoRef.current) videoRef.current.pause();
+          }}
+        />
       </aside>
       </div>
     </div>
