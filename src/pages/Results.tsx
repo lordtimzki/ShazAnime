@@ -1,11 +1,14 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AnimeThemeResults from "../components/AnimeThemesResults";
 import { SongInfo } from "../types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Results() {
   const location = useLocation();
-  const songInfo = location.state?.songInfo as SongInfo;
+  const navigate = useNavigate();
+  const [songInfo, setSongInfo] = useState<SongInfo | null>(
+    location.state?.songInfo || null
+  );
 
   useEffect(() => {
     if (songInfo) {
@@ -14,14 +17,20 @@ export default function Results() {
     }
   }, [songInfo]);
 
+  // No song data — show error via AnimeThemesResults with a dummy SongInfo
   if (!songInfo) {
-    return <div className="p-8 text-customColor">No song data available</div>;
+    return (
+      <AnimeThemeResults
+        songInfo={{ title: "", originalTitle: "", artist: "" }}
+        onNewSong={(newSongInfo) => setSongInfo(newSongInfo)}
+      />
+    );
   }
 
   return (
-    <div className="p-8 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-8">Results</h1>
-      <AnimeThemeResults songInfo={songInfo} onNewSong={() => {}} />
-    </div>
+    <AnimeThemeResults
+      songInfo={songInfo}
+      onNewSong={(newSongInfo) => setSongInfo(newSongInfo)}
+    />
   );
 }

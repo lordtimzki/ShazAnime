@@ -4,12 +4,16 @@ export interface SongInfo {
   artist: string;
   album?: string;
   release_date?: string;
+  coverArt?: string;
+  appleMusicUrl?: string;
+  shazamUrl?: string;
 }
 
 export interface AnimeThemeDetails {
   artistNames: string[];
   songName: string;
   animeName: string;
+  animeImage: string;
   themeType: string;
   sequence: number;
   year: number;

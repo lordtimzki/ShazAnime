@@ -84,6 +84,9 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
       title: result.title,
       originalTitle: result.originalTitle,
       artist: result.artist,
+      coverArt: result.coverArt || "",
+      appleMusicUrl: result.appleMusicUrl || "",
+      shazamUrl: result.shazamUrl || "",
     };
 
     return songInfo;
@@ -134,7 +137,7 @@ export async function findAnimeTheme(
         const themeDetailsResponse = await axios.get(
           `${ANIME_THEMES_API_URL}/animetheme/${theme.id}`,
           {
-            params: { include: "anime,animethemeentries.videos,song.artists" },
+            params: { include: "anime.images,animethemeentries.videos,song.artists" },
           }
         );
         const themeDetails = themeDetailsResponse.data.animetheme;
@@ -147,12 +150,17 @@ export async function findAnimeTheme(
           )
         ) {
           console.log(`Found match: ${themeDetails.song.title}`);
+          const animeImage = themeDetails.anime.images?.find((img: any) => img.facet === "Large Cover")?.link
+            || themeDetails.anime.images?.find((img: any) => img.facet === "Small Cover")?.link
+            || themeDetails.anime.images?.[0]?.link
+            || "";
           return {
             artistNames: themeDetails.song.artists.map(
               (artist: any) => artist.name
             ),
             songName: themeDetails.song.title,
             animeName: themeDetails.anime.name,
+            animeImage,
             themeType: themeDetails.type,
             sequence: themeDetails.sequence,
             year: themeDetails.anime.year,
@@ -191,7 +199,7 @@ export async function findAnimeTheme(
         const themeDetailsResponse = await axios.get(
           `${ANIME_THEMES_API_URL}/animetheme/${theme.id}`,
           {
-            params: { include: "anime,animethemeentries.videos,song.artists" },
+            params: { include: "anime.images,animethemeentries.videos,song.artists" },
           }
         );
         const themeDetails = themeDetailsResponse.data.animetheme;
@@ -205,12 +213,17 @@ export async function findAnimeTheme(
         ) {
           console.log(`Found match: ${themeDetails.song.title}`);
 
+          const animeImage = themeDetails.anime.images?.find((img: any) => img.facet === "Large Cover")?.link
+            || themeDetails.anime.images?.find((img: any) => img.facet === "Small Cover")?.link
+            || themeDetails.anime.images?.[0]?.link
+            || "";
           return {
             artistNames: themeDetails.song.artists.map(
               (artist: any) => artist.name
             ),
             songName: themeDetails.song.title,
             animeName: themeDetails.anime.name,
+            animeImage,
             themeType: themeDetails.type,
             sequence: themeDetails.sequence,
             year: themeDetails.anime.year,

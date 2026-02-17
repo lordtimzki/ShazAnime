@@ -27,3 +27,5 @@ dist-ssr
 backend/venv
 __pycache__
 *.pyc
+
+new_design

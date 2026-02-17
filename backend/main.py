@@ -49,8 +49,38 @@ async def recognize(file: UploadFile = File(...)):
     title = track.get("title", "")
     artist = track.get("subtitle", "")
 
+    # Extract album art from Shazam images
+    images = track.get("images", {})
+    cover_art = images.get("coverarthq") or images.get("coverart") or ""
+
+    # Extract Apple Music link from hub actions
+    apple_music_url = ""
+    hub = track.get("hub", {})
+    for option in hub.get("options", []):
+        if option.get("caption") == "OPEN" or "apple" in option.get("providername", "").lower():
+            for action in option.get("actions", []):
+                if action.get("uri"):
+                    apple_music_url = action["uri"]
+                    break
+        if apple_music_url:
+            break
+    # Fallback: try hub providers
+    if not apple_music_url:
+        for provider in hub.get("providers", []):
+            if "apple" in provider.get("type", "").lower():
+                for action in provider.get("actions", []):
+                    if action.get("uri"):
+                        apple_music_url = action["uri"]
+                        break
+
+    # Shazam web URL
+    shazam_url = track.get("url", "")
+
     return {
         "title": title,
         "originalTitle": title,
         "artist": artist,
+        "coverArt": cover_art,
+        "appleMusicUrl": apple_music_url,
+        "shazamUrl": shazam_url,
     }
