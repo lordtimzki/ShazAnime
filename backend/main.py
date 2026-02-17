@@ -21,10 +21,39 @@ app.add_middleware(
 
 shazam = Shazam()
 
+ANIME_THEMES_API = "https://api.animethemes.moe"
+
 
 @app.get("/")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/animethemes/search")
+async def animethemes_search(q: str):
+    """Proxy search requests to AnimeThemes API to avoid CORS issues on mobile."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"{ANIME_THEMES_API}/search",
+            params={"fields[search]": "animethemes", "q": q},
+            timeout=10.0,
+        )
+        return resp.json()
+
+
+@app.get("/animethemes/animetheme/{theme_id}")
+async def animethemes_theme_detail(theme_id: int, include: str = ""):
+    """Proxy theme detail requests to AnimeThemes API to avoid CORS issues on mobile."""
+    async with httpx.AsyncClient() as client:
+        params = {}
+        if include:
+            params["include"] = include
+        resp = await client.get(
+            f"{ANIME_THEMES_API}/animetheme/{theme_id}",
+            params=params,
+            timeout=10.0,
+        )
+        return resp.json()
 
 
 @app.post("/recognize")

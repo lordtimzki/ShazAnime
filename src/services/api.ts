@@ -31,10 +31,11 @@ function selectBestVideo(entries: any[]): string {
   return candidates[0].link || "";
 }
 
-const ANIME_THEMES_API_URL = "https://api.animethemes.moe";
 // In production, set VITE_BACKEND_URL to your Render deployment URL
 // In local dev, leave it empty — Vite proxy handles routing
 const SHAZAM_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+// AnimeThemes calls are proxied through our backend to avoid CORS issues on mobile
+const ANIME_THEMES_API_URL = `${SHAZAM_BACKEND_URL}/animethemes`;
 
 // Get artist mappings from localStorage
 function getArtistMappings() {
@@ -102,9 +103,7 @@ export async function searchAnimeTheme(songInfo: SongInfo): Promise<any> {
   try {
     const response = await axios.get(`${ANIME_THEMES_API_URL}/search`, {
       params: {
-        q: `${songInfo.title.toLowerCase()}`, // Always lowercase
-        include:
-          "animethemes.animethemeentries.videos,animethemes.song,animethemes.song.artists",
+        q: songInfo.title.toLowerCase(),
       },
     });
     console.log("AnimeThemes API Response:", response.data);
@@ -126,8 +125,7 @@ export async function findAnimeTheme(
     // Step 2: Initial search by full title (ensure lowercase)
     let songSearchResponse = await axios.get(`${ANIME_THEMES_API_URL}/search`, {
       params: {
-        "fields[search]": "animethemes",
-        q: songTitle.toLowerCase(), // Lowercase for case-insensitivity
+        q: songTitle.toLowerCase(),
       },
     });
     console.log("Song Search Response:", songSearchResponse.data);
@@ -185,8 +183,7 @@ export async function findAnimeTheme(
         `${ANIME_THEMES_API_URL}/search`,
         {
           params: {
-            "fields[search]": "animethemes",
-            q: partialTitle, // Search using the partial title
+            q: partialTitle,
           },
         }
       );
