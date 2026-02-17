@@ -244,7 +244,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
                 {themeDetails.songName}
               </h1>
               <p className="text-accent-blue font-medium animate-slide-right [animation-delay:600ms]">
-                {themeDetails.artistNames.join(", ")}
+                {themeDetails.artistNames.length > 0 ? themeDetails.artistNames.join(", ") : songInfo.artist}
               </p>
             </div>
           </div>

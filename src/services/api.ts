@@ -79,7 +79,7 @@ async function searchThemes(title: string): Promise<any[]> {
 const artistMappings: Record<string, string> = Object.fromEntries(
   Object.entries(artistMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
 );
-const songMappings: Record<string, { title: string; artist?: string }> = Object.fromEntries(
+const songMappings: Record<string, { title: string; artist?: string; type?: string; skipArtistCheck?: boolean }> = Object.fromEntries(
   Object.entries(songMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
 );
 
@@ -97,10 +97,10 @@ function getMappedArtistName(artist: string): string {
   return mappedName;
 }
 
-/** Returns the mapped song title if one exists (optionally constrained by artist).
+/** Returns the mapped song info if one exists (optionally constrained by artist).
  *  The artist filter matches against either the raw Shazam artist or the mapped AnimeThemes artist,
  *  so entries in songMappings can use either name. */
-function getMappedSongTitle(title: string, rawArtist: string, mappedArtist: string): string | null {
+function getMappedSong(title: string, rawArtist: string, mappedArtist: string): { title: string; type?: string; skipArtistCheck?: boolean } | null {
   const key = title.trim().toLowerCase();
   const mapping = songMappings[key];
   if (!mapping) return null;
@@ -108,8 +108,8 @@ function getMappedSongTitle(title: string, rawArtist: string, mappedArtist: stri
     const filter = mapping.artist.toLowerCase();
     if (!rawArtist.toLowerCase().includes(filter) && !mappedArtist.toLowerCase().includes(filter)) return null;
   }
-  console.log(`Song mapping: "${title}" → "${mapping.title}"`);
-  return mapping.title;
+  console.log(`Song mapping: "${title}" → "${mapping.title}"${mapping.type ? ` (type filter: ${mapping.type})` : ""}${mapping.skipArtistCheck ? " (skipArtistCheck)" : ""}`);
+  return { title: mapping.title, type: mapping.type, skipArtistCheck: mapping.skipArtistCheck };
 }
 
 export async function identifySong(audioData: Blob): Promise<SongInfo> {
@@ -196,14 +196,17 @@ export async function findAnimeTheme(
 ): Promise<AnimeThemeDetails | null> {
   try {
     const mappedArtistName = getMappedArtistName(artistName);
-    const mappedSongTitle = getMappedSongTitle(songTitle, artistName, mappedArtistName) ?? songTitle;
+    const songMapping = getMappedSong(songTitle, artistName, mappedArtistName);
+    const mappedSongTitle = songMapping?.title ?? songTitle;
+    const mappedSongType = songMapping?.type;
+    const skipArtistCheck = songMapping?.skipArtistCheck ?? false;
 
     // Search by full title — GraphQL returns all nested data in one query
     let themes = await searchThemes(mappedSongTitle);
 
-    // Check artist match across all results
+    // Check artist (and optional type) match across all results
     for (const theme of themes) {
-      if (themeMatchesArtist(theme, mappedArtistName)) {
+      if ((skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) && (!mappedSongType || theme.type === mappedSongType)) {
         console.log(`Found match: ${theme.song?.title}`);
         return themeToDetails(theme);
       }
@@ -220,7 +223,7 @@ export async function findAnimeTheme(
       themes = await searchThemes(partialTitle);
 
       for (const theme of themes) {
-        if (themeMatchesArtist(theme, mappedArtistName)) {
+        if ((skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) && (!mappedSongType || theme.type === mappedSongType)) {
           console.log(`Found match: ${theme.song?.title}`);
           return themeToDetails(theme);
         }
@@ -234,7 +237,7 @@ export async function findAnimeTheme(
     themes = await searchThemes(mappedArtistName);
 
     for (const theme of themes) {
-      if (themeMatchesArtist(theme, mappedArtistName)) {
+      if (themeMatchesArtist(theme, mappedArtistName) && (!mappedSongType || theme.type === mappedSongType)) {
         // Also check if the song title loosely matches
         const themeTitle = (theme.song?.title || "").toLowerCase();
         const searchTitle = mappedSongTitle.toLowerCase();
