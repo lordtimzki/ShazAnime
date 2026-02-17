@@ -2,7 +2,9 @@ import axios from "axios";
 import { AnimeThemeDetails, SongInfo } from "../types/index";
 
 const ANIME_THEMES_API_URL = "https://api.animethemes.moe";
-const SHAZAM_BACKEND_URL = "";
+// In production, set VITE_BACKEND_URL to your Render deployment URL
+// In local dev, leave it empty — Vite proxy handles routing
+const SHAZAM_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 // Get artist mappings from localStorage
 function getArtistMappings() {

@@ -13,7 +13,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api/recognize": {
+      "/recognize": {
         target: "http://localhost:8002",
         changeOrigin: true,
       },

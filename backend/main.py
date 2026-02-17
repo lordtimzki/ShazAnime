@@ -11,10 +11,10 @@ from shazamio import Shazam
 
 app = FastAPI()
 
-# Allow CORS from the Vite dev server
+# Allow CORS from any origin (Vercel frontend calls this Render backend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -22,7 +22,7 @@ app.add_middleware(
 shazam = Shazam()
 
 
-@app.post("/api/recognize")
+@app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
     """Accept an audio file upload and return song identification results."""
     # Save uploaded audio to a temp file (ShazamIO needs a file path)
