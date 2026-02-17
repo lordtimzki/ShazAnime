@@ -2,25 +2,25 @@ import axios from "axios";
 import { AnimeThemeDetails, SongInfo } from "../types/index";
 
 /**
- * Pick the best video from all theme entries.
- * Prefers the full, clean OP/ED visual (overlap "None") over overlay/transition versions.
+ * Pick the best video from all theme entries (GraphQL shape).
+ * Prefers the full, clean OP/ED visual (overlap "NONE") over overlay/transition versions.
  * If only transition/overlay versions exist, still returns the best available.
  */
 function selectBestVideo(entries: any[]): string {
   const candidates = entries.flatMap((entry: any) =>
-    (entry.videos || []).map((video: any) => ({ ...video, version: entry.version }))
+    (entry.videos?.edges || []).map((edge: any) => ({
+      ...edge.node,
+      version: entry.version,
+    }))
   );
 
   if (candidates.length === 0) return "";
 
   const score = (v: any) => {
     let s = 0;
-    // Strongly prefer the full clean visual (no transition/overlay)
-    if (v.overlap === "None") s += 100;
-    else if (v.overlap === "Over") s += 50;
-    // "Transition" gets 0
+    if (v.overlap === "NONE") s += 100;
+    else if (v.overlap === "OVER") s += 50;
 
-    // Minor tiebreakers — not requirements
     if (v.nc) s += 10;
     if (v.source === "BD") s += 5;
     if (v.resolution >= 1080) s += 2;
@@ -34,8 +34,44 @@ function selectBestVideo(entries: any[]): string {
 // In production, set VITE_BACKEND_URL to your Render deployment URL
 // In local dev, leave it empty — Vite proxy handles routing
 const SHAZAM_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
-// AnimeThemes calls are proxied through our backend to avoid CORS issues on mobile
-const ANIME_THEMES_API_URL = `${SHAZAM_BACKEND_URL}/animethemes`;
+// AnimeThemes GraphQL calls are proxied through our backend to avoid CORS issues on mobile
+const ANIME_THEMES_GRAPHQL_URL = `${SHAZAM_BACKEND_URL}/animethemes/graphql`;
+
+const SEARCH_QUERY = `
+  query SearchThemes($search: String!) {
+    search(search: $search, first: 10) {
+      animethemes {
+        id type sequence
+        song {
+          title
+          performances {
+            artist {
+              ... on Artist { name }
+              ... on Membership { group { name } member { name } }
+            }
+          }
+        }
+        anime {
+          name year
+          images { edges { node { facet link } } }
+        }
+        animethemeentries {
+          version
+          videos { edges { node { link overlap nc source resolution } } }
+        }
+      }
+    }
+  }
+`;
+
+async function searchThemes(title: string): Promise<any[]> {
+  const response = await axios.post(ANIME_THEMES_GRAPHQL_URL, {
+    query: SEARCH_QUERY,
+    variables: { search: title.toLowerCase() },
+  });
+  console.log("Song Search Response:", response.data);
+  return response.data.data?.search?.animethemes || [];
+}
 
 // Get artist mappings from localStorage
 function getArtistMappings() {
@@ -99,19 +135,49 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
   }
 }
 
-export async function searchAnimeTheme(songInfo: SongInfo): Promise<any> {
-  try {
-    const response = await axios.get(`${ANIME_THEMES_API_URL}/search`, {
-      params: {
-        q: songInfo.title.toLowerCase(),
-      },
-    });
-    console.log("AnimeThemes API Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error searching for anime theme:", error);
-    throw error;
-  }
+/** Get all artist names from a performance (handles both Artist and Membership types) */
+function getPerformanceNames(artist: any): string[] {
+  if (!artist) return [];
+  // Artist type has name directly
+  if (artist.name) return [artist.name];
+  // Membership type has group.name and member.name
+  const names: string[] = [];
+  if (artist.group?.name) names.push(artist.group.name);
+  if (artist.member?.name) names.push(artist.member.name);
+  return names;
+}
+
+/** Extract AnimeThemeDetails from a GraphQL theme result */
+function themeToDetails(theme: any): AnimeThemeDetails {
+  const images = (theme.anime.images?.edges || []).map((e: any) => e.node);
+  const animeImage =
+    images.find((img: any) => img.facet === "LARGE_COVER")?.link ||
+    images.find((img: any) => img.facet === "SMALL_COVER")?.link ||
+    images[0]?.link ||
+    "";
+
+  return {
+    artistNames: (theme.song?.performances || []).flatMap(
+      (p: any) => getPerformanceNames(p.artist)
+    ),
+    songName: theme.song?.title || "",
+    animeName: theme.anime.name,
+    animeImage,
+    themeType: theme.type,
+    sequence: theme.sequence,
+    year: theme.anime.year,
+    videoLink: selectBestVideo(theme.animethemeentries),
+  };
+}
+
+/** Check if any artist in a theme matches the mapped artist name */
+function themeMatchesArtist(theme: any, mappedArtistName: string): boolean {
+  const target = mappedArtistName.toLowerCase();
+  return (theme.song?.performances || []).some(
+    (p: any) => getPerformanceNames(p.artist).some(
+      (name) => name.toLowerCase() === target
+    )
+  );
 }
 
 export async function findAnimeTheme(
@@ -119,115 +185,55 @@ export async function findAnimeTheme(
   songTitle: string
 ): Promise<AnimeThemeDetails | null> {
   try {
-    // Step 1: Get the mapped artist name from localStorage
-    let mappedArtistName = getMappedArtistName(artistName);
+    const mappedArtistName = getMappedArtistName(artistName);
 
-    // Step 2: Initial search by full title (ensure lowercase)
-    let songSearchResponse = await axios.get(`${ANIME_THEMES_API_URL}/search`, {
-      params: {
-        q: songTitle.toLowerCase(),
-      },
-    });
-    console.log("Song Search Response:", songSearchResponse.data);
-    let themes = songSearchResponse.data.search.animethemes;
+    // Search by full title — GraphQL returns all nested data in one query
+    let themes = await searchThemes(songTitle);
 
-    // Step 3: Check the artist for each response if themes are found
-    if (themes.length > 0) {
+    // Check artist match across all results
+    for (const theme of themes) {
+      if (themeMatchesArtist(theme, mappedArtistName)) {
+        console.log(`Found match: ${theme.song?.title}`);
+        return themeToDetails(theme);
+      }
+    }
+
+    // Fallback 1: retry with first half of title (helps with concatenated titles like "Senakaawase")
+    const halfIndex = Math.floor(songTitle.length / 2);
+    const partialTitle = songTitle.slice(0, halfIndex);
+    if (partialTitle.length >= 3) {
+      console.log(
+        `No match found. Retrying with partial title: "${partialTitle}"`
+      );
+
+      themes = await searchThemes(partialTitle);
+
       for (const theme of themes) {
-        const themeDetailsResponse = await axios.get(
-          `${ANIME_THEMES_API_URL}/animetheme/${theme.id}`,
-          {
-            params: { include: "anime.images,animethemeentries.videos,song.artists" },
-          }
-        );
-        const themeDetails = themeDetailsResponse.data.animetheme;
-
-        // Check if the artist matches the mapped artist name
-        if (
-          themeDetails.song.artists.some(
-            (artist: any) =>
-              artist.name.toLowerCase() === mappedArtistName.toLowerCase()
-          )
-        ) {
-          console.log(`Found match: ${themeDetails.song.title}`);
-          const animeImage = themeDetails.anime.images?.find((img: any) => img.facet === "Large Cover")?.link
-            || themeDetails.anime.images?.find((img: any) => img.facet === "Small Cover")?.link
-            || themeDetails.anime.images?.[0]?.link
-            || "";
-          return {
-            artistNames: themeDetails.song.artists.map(
-              (artist: any) => artist.name
-            ),
-            songName: themeDetails.song.title,
-            animeName: themeDetails.anime.name,
-            animeImage,
-            themeType: themeDetails.type,
-            sequence: themeDetails.sequence,
-            year: themeDetails.anime.year,
-            videoLink: selectBestVideo(themeDetails.animethemeentries),
-          };
+        if (themeMatchesArtist(theme, mappedArtistName)) {
+          console.log(`Found match: ${theme.song?.title}`);
+          return themeToDetails(theme);
         }
       }
     }
 
-    // Step 4: If no themes found, split the title in half and retry
-    if (themes.length === 0) {
-      const halfIndex = Math.floor(songTitle.length / 2); // Floor division to split title in half
-      const partialTitle = songTitle.slice(0, halfIndex).toLowerCase(); // Use the first half and lowercase it
-      console.log(
-        `No themes found. Retrying with partial title: "${partialTitle}"`
-      );
+    // Fallback 2: search by artist name
+    console.log(
+      `Still no match. Retrying with artist name: "${mappedArtistName}"`
+    );
+    themes = await searchThemes(mappedArtistName);
 
-      // Retry search with the first half of the title
-      const partialSearchResponse = await axios.get(
-        `${ANIME_THEMES_API_URL}/search`,
-        {
-          params: {
-            q: partialTitle,
-          },
-        }
-      );
-      console.log(
-        `Retry Search Response for partial title "${partialTitle}":`,
-        partialSearchResponse.data
-      );
-      themes = partialSearchResponse.data.search.animethemes;
-
-      // Step 5: Check the artist for each response from the partial title search
-      for (const theme of themes) {
-        const themeDetailsResponse = await axios.get(
-          `${ANIME_THEMES_API_URL}/animetheme/${theme.id}`,
-          {
-            params: { include: "anime.images,animethemeentries.videos,song.artists" },
-          }
-        );
-        const themeDetails = themeDetailsResponse.data.animetheme;
-
-        // Check if the artist matches
+    for (const theme of themes) {
+      if (themeMatchesArtist(theme, mappedArtistName)) {
+        // Also check if the song title loosely matches
+        const themeTitle = (theme.song?.title || "").toLowerCase();
+        const searchTitle = songTitle.toLowerCase();
         if (
-          themeDetails.song.artists.some(
-            (artist: any) =>
-              artist.name.toLowerCase() === mappedArtistName.toLowerCase()
-          )
+          themeTitle.includes(searchTitle) ||
+          searchTitle.includes(themeTitle) ||
+          themeTitle.replace(/\s+/g, "").includes(searchTitle.replace(/\s+/g, ""))
         ) {
-          console.log(`Found match: ${themeDetails.song.title}`);
-
-          const animeImage = themeDetails.anime.images?.find((img: any) => img.facet === "Large Cover")?.link
-            || themeDetails.anime.images?.find((img: any) => img.facet === "Small Cover")?.link
-            || themeDetails.anime.images?.[0]?.link
-            || "";
-          return {
-            artistNames: themeDetails.song.artists.map(
-              (artist: any) => artist.name
-            ),
-            songName: themeDetails.song.title,
-            animeName: themeDetails.anime.name,
-            animeImage,
-            themeType: themeDetails.type,
-            sequence: themeDetails.sequence,
-            year: themeDetails.anime.year,
-            videoLink: selectBestVideo(themeDetails.animethemeentries),
-          };
+          console.log(`Found match via artist search: ${theme.song?.title}`);
+          return themeToDetails(theme);
         }
       }
     }

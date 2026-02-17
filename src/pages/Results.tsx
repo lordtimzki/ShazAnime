@@ -13,12 +13,16 @@ export default function Results() {
     location.state?.songInfo || videoState.songInfo || null
   );
 
+  // Track which navigation we've already handled to avoid double-processing
+  const [handledKey, setHandledKey] = useState(location.key);
+
   useEffect(() => {
-    // If navigating here with new song info from route state, use it
-    if (location.state?.songInfo) {
+    // Only update songInfo for genuinely new navigations (different location.key)
+    if (location.key !== handledKey && location.state?.songInfo) {
       setSongInfo(location.state.songInfo);
+      setHandledKey(location.key);
     }
-  }, [location.state]);
+  }, [location.key, location.state, handledKey]);
 
   useEffect(() => {
     if (songInfo) {

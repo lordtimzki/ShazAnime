@@ -1,7 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { identifySong } from "../services/api";
 import { SongInfo } from "../types";
+
+const MAX_LISTEN_MS = 18000; // Stop listening after 18 seconds
+const CHUNK_INTERVAL_MS = 3000; // Send audio for recognition every 3 seconds
 
 interface RecordButtonProps {
   onClick?: () => void;
@@ -18,61 +21,132 @@ export default function RecordButton({
   const [isProcessing, setIsProcessing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const identifiedRef = useRef(false);
+  const attemptRef = useRef(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
+
+  const handleMatch = useCallback(
+    (songInfo: SongInfo) => {
+      if (onIdentified) {
+        onIdentified(songInfo);
+      } else {
+        navigate("/results", { state: { songInfo } });
+      }
+    },
+    [onIdentified, navigate]
+  );
+
+  const handleNoMatch = useCallback(() => {
+    navigate("/results", {
+      state: { songInfo: null, error: "No song identified" },
+    });
+  }, [navigate]);
+
+  const releaseStream = useCallback(() => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    releaseStream();
+    setIsRecording(false);
+  }, [releaseStream]);
+
+  const tryIdentify = useCallback(
+    async (chunks: Blob[], attempt: number) => {
+      if (identifiedRef.current) return;
+
+      const audioBlob = new Blob(chunks, { type: "audio/webm" });
+      try {
+        const songInfo: SongInfo = await identifySong(audioBlob);
+        // Ignore stale responses
+        if (identifiedRef.current || attempt !== attemptRef.current) return;
+
+        if (songInfo && songInfo.title) {
+          identifiedRef.current = true; // Set before stopRecording so onstop skips its final attempt
+          stopRecording();
+          handleMatch(songInfo);
+        }
+      } catch {
+        // No match on this attempt — keep listening
+      }
+    },
+    [stopRecording, handleMatch]
+  );
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
+      identifiedRef.current = false;
+      attemptRef.current = 0;
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+
+        // Don't send if already identified
+        if (identifiedRef.current) return;
+
+        // Send accumulated audio for identification
+        attemptRef.current += 1;
+        const currentAttempt = attemptRef.current;
+        const chunksSoFar = [...audioChunksRef.current];
+        tryIdentify(chunksSoFar, currentAttempt);
       };
 
-      mediaRecorderRef.current.onstop = handleRecordingStop;
+      mediaRecorder.onstop = () => {
+        // If we timed out without a match, do one final attempt with all audio
+        if (!identifiedRef.current) {
+          setIsProcessing(true);
+          const allChunks = [...audioChunksRef.current];
+          const audioBlob = new Blob(allChunks, { type: "audio/webm" });
+          identifySong(audioBlob)
+            .then((songInfo) => {
+              if (identifiedRef.current) return;
+              if (songInfo && songInfo.title) {
+                identifiedRef.current = true;
+                handleMatch(songInfo);
+              } else {
+                handleNoMatch();
+              }
+            })
+            .catch(() => {
+              if (!identifiedRef.current) handleNoMatch();
+            })
+            .finally(() => setIsProcessing(false));
+        }
+      };
 
-      mediaRecorderRef.current.start();
+      // Emit chunks at interval for progressive identification
+      mediaRecorder.start(CHUNK_INTERVAL_MS);
       setIsRecording(true);
+
+      // Auto-stop after max listen time
+      timeoutRef.current = setTimeout(() => {
+        if (!identifiedRef.current) {
+          stopRecording();
+        }
+      }, MAX_LISTEN_MS);
     } catch (error) {
       console.error("Error accessing microphone:", error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      // Stop all tracks to release microphone
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-      setIsRecording(false);
-    }
-  };
-
-  const handleRecordingStop = async () => {
-    setIsProcessing(true);
-    const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-    try {
-      const songInfo: SongInfo = await identifySong(audioBlob);
-      if (songInfo && songInfo.title) {
-        if (onIdentified) {
-          onIdentified(songInfo);
-        } else {
-          navigate("/results", { state: { songInfo } });
-        }
-      } else {
-        navigate("/results", {
-          state: { songInfo: null, error: "No song identified" },
-        });
-      }
-    } catch (error) {
-      console.error("Error identifying song:", error);
-      navigate("/results", {
-        state: { songInfo: null, error: "Error identifying song" },
-      });
-    } finally {
-      setIsProcessing(false);
     }
   };
 
