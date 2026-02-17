@@ -86,6 +86,7 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
       artist: result.artist,
       coverArt: result.coverArt || "",
       appleMusicUrl: result.appleMusicUrl || "",
+      appleMusicId: result.appleMusicId || "",
       shazamUrl: result.shazamUrl || "",
     };
 

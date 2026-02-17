@@ -79,5 +79,6 @@ async def recognize(file: UploadFile = File(...)):
         "artist": artist,
         "coverArt": cover_art,
         "appleMusicUrl": apple_music_url,
+        "appleMusicId": adamid or "",
         "shazamUrl": shazam_url,
     }

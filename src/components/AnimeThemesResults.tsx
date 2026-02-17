@@ -79,14 +79,19 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
 
   // Fetch Spotify link via Odesli/song.link
   useEffect(() => {
-    const lookupUrl = songInfo.appleMusicUrl || songInfo.shazamUrl;
-    if (!lookupUrl) return;
     setSpotifyUrl(null);
     const fetchSpotify = async () => {
       try {
-        const res = await fetch(
-          `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(lookupUrl)}`
-        );
+        // Prefer platform+id lookup (most reliable), fall back to URL lookup
+        let apiUrl: string;
+        if (songInfo.appleMusicId) {
+          apiUrl = `https://api.song.link/v1-alpha.1/links?platform=appleMusic&type=song&id=${songInfo.appleMusicId}`;
+        } else {
+          const lookupUrl = songInfo.appleMusicUrl || songInfo.shazamUrl;
+          if (!lookupUrl) return;
+          apiUrl = `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(lookupUrl)}`;
+        }
+        const res = await fetch(apiUrl);
         if (!res.ok) return;
         const data = await res.json();
         const spotify = data.linksByPlatform?.spotify?.url;
@@ -96,7 +101,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
       }
     };
     fetchSpotify();
-  }, [songInfo.appleMusicUrl, songInfo.shazamUrl]);
+  }, [songInfo.appleMusicId, songInfo.appleMusicUrl, songInfo.shazamUrl]);
 
   // Loading state
   if (loading) {

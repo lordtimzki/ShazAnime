@@ -6,6 +6,7 @@ export interface SongInfo {
   release_date?: string;
   coverArt?: string;
   appleMusicUrl?: string;
+  appleMusicId?: string;
   shazamUrl?: string;
 }
 
