@@ -1,5 +1,7 @@
 import axios from "axios";
 import { AnimeThemeDetails, SongInfo } from "../types/index";
+import artistMappingsJson from "../artistMappings.json";
+import songMappingsJson from "../songMappings.json";
 
 /**
  * Pick the best video from all theme entries (GraphQL shape).
@@ -73,33 +75,32 @@ async function searchThemes(title: string): Promise<any[]> {
   return response.data.data?.search?.animethemes || [];
 }
 
-// Get artist mappings from localStorage
-function getArtistMappings() {
-  const mappings = localStorage.getItem("artistMappings");
-  return mappings ? JSON.parse(mappings) : {};
-}
+const artistMappings: Record<string, string> = artistMappingsJson;
+const songMappings: Record<string, { title: string; artist?: string }> = songMappingsJson;
 
-// Get the mapped artist name from localStorage
 function getMappedArtistName(artist: string): string {
-  const artistMappings = getArtistMappings();
-
-  // Normalize the artist name by trimming spaces and converting to lowercase
   const normalizedArtist = artist.trim().toLowerCase();
-
-  // Remove any featured artist info, e.g., "SawanoHiroyuki[nZk]:Tielle" -> "SawanoHiroyuki[nZk]"
+  // Remove featured artist info, e.g., "SawanoHiroyuki[nZk]:Tielle" -> "SawanoHiroyuki[nZk]"
   const baseArtist = normalizedArtist.split(":")[0];
 
-  // Get the mapped name for the base artist
   const mappedName =
     artistMappings[baseArtist] ||
     artistMappings[normalizedArtist] ||
-    baseArtist; // Use baseArtist for final search
+    baseArtist;
 
-  console.log(
-    `Original artist name: "${artist}", Normalized artist name: "${normalizedArtist}", Base artist name: "${baseArtist}", Mapped artist name: "${mappedName}"`
-  ); // Log the mapping for debugging
-
+  console.log(`Artist mapping: "${artist}" → "${mappedName}"`);
   return mappedName;
+}
+
+/** Returns the mapped song title if one exists (optionally constrained by artist). */
+function getMappedSongTitle(title: string, artist: string): string | null {
+  const key = title.trim().toLowerCase();
+  const mapping = songMappings[key];
+  if (!mapping) return null;
+  // If the mapping specifies an artist, only apply it when the artist matches
+  if (mapping.artist && !artist.toLowerCase().includes(mapping.artist.toLowerCase())) return null;
+  console.log(`Song mapping: "${title}" → "${mapping.title}"`);
+  return mapping.title;
 }
 
 export async function identifySong(audioData: Blob): Promise<SongInfo> {
@@ -186,9 +187,10 @@ export async function findAnimeTheme(
 ): Promise<AnimeThemeDetails | null> {
   try {
     const mappedArtistName = getMappedArtistName(artistName);
+    const mappedSongTitle = getMappedSongTitle(songTitle, artistName) ?? songTitle;
 
     // Search by full title — GraphQL returns all nested data in one query
-    let themes = await searchThemes(songTitle);
+    let themes = await searchThemes(mappedSongTitle);
 
     // Check artist match across all results
     for (const theme of themes) {
@@ -199,8 +201,8 @@ export async function findAnimeTheme(
     }
 
     // Fallback 1: retry with first half of title (helps with concatenated titles like "Senakaawase")
-    const halfIndex = Math.floor(songTitle.length / 2);
-    const partialTitle = songTitle.slice(0, halfIndex);
+    const halfIndex = Math.floor(mappedSongTitle.length / 2);
+    const partialTitle = mappedSongTitle.slice(0, halfIndex);
     if (partialTitle.length >= 3) {
       console.log(
         `No match found. Retrying with partial title: "${partialTitle}"`
@@ -226,7 +228,7 @@ export async function findAnimeTheme(
       if (themeMatchesArtist(theme, mappedArtistName)) {
         // Also check if the song title loosely matches
         const themeTitle = (theme.song?.title || "").toLowerCase();
-        const searchTitle = songTitle.toLowerCase();
+        const searchTitle = mappedSongTitle.toLowerCase();
         if (
           themeTitle.includes(searchTitle) ||
           searchTitle.includes(themeTitle) ||
