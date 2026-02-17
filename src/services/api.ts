@@ -1,9 +1,8 @@
 import axios from "axios";
 import { AnimeThemeDetails, SongInfo } from "../types/index";
 
-const AUDD_API_URL = "https://api.audd.io/";
-const AUDD_API_TOKEN = "d9326b0b75862bb67e64af7b59698446";
 const ANIME_THEMES_API_URL = "https://api.animethemes.moe";
+const SHAZAM_BACKEND_URL = "";
 
 // Get artist mappings from localStorage
 function getArtistMappings() {
@@ -37,19 +36,21 @@ function getMappedArtistName(artist: string): string {
 export async function identifySong(audioData: Blob): Promise<SongInfo> {
   const formData = new FormData();
   formData.append("file", audioData, "audio.webm");
-  formData.append("return", "apple_music,spotify");
-  formData.append("api_token", AUDD_API_TOKEN);
 
   try {
-    const response = await axios.post(AUDD_API_URL, formData, {
+    const response = await axios.post(`${SHAZAM_BACKEND_URL}/recognize`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
-    const result = response.data.result;
+    const result = response.data;
+
+    if (!result.title) {
+      throw new Error(result.error || "No song identified");
+    }
 
     const songInfo: SongInfo = {
-      title: result.apple_music?.name || result.title, // Prioritize English title
-      originalTitle: result.title,
+      title: result.title,
+      originalTitle: result.originalTitle,
       artist: result.artist,
     };
 

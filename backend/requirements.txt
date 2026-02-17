@@ -1,0 +1,5 @@
+shazamio
+fastapi
+uvicorn[standard]
+python-multipart
+audioop-lts

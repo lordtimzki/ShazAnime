@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{backend/**,node_modules/**,src/**,public/**,*.ts,*.tsx,*.js,*.json,*.css,*.html}"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/recognize" }
+  ]
+}

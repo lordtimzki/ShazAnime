@@ -11,4 +11,12 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
+  server: {
+    proxy: {
+      "/api/recognize": {
+        target: "http://localhost:8002",
+        changeOrigin: true,
+      },
+    },
+  },
 });

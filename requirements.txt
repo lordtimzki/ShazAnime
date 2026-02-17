@@ -1,0 +1,4 @@
+shazamio
+fastapi
+python-multipart
+certifi
