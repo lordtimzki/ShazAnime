@@ -93,7 +93,7 @@ export default function About() {
               <div className="flex justify-between">
                 <span className="text-text-dim">Song Recognition</span>
                 <a
-                  href="https://github.com/dotenv-org/shazamio"
+                  href="https://github.com/shazamio/ShazamIO"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
@@ -114,7 +114,6 @@ export default function About() {
               </div>
               <div className="flex justify-between">
                 <span className="text-text-dim">Built by</span>
-                {/* TODO: Add your name / link here */}
                 <span className="text-white font-medium">lordtimzki</span>
               </div>
             </div>
@@ -124,10 +123,10 @@ export default function About() {
           <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
             <h3 className="text-lg font-bold text-white mb-3">Links</h3>
             <div className="space-y-2">
-              {/* TODO: Add your links here (GitHub, portfolio, etc.) */}
               <a
                 href="https://github.com/lordtimzki/ShazAnime"
                 className="flex items-center gap-2 text-primary hover:underline text-sm"
+                target="_blank"
               >
                 <span className="material-symbols-outlined text-base">code</span>
                 GitHub Repository
@@ -135,6 +134,7 @@ export default function About() {
               <a
                 href="http://timdac.dev/"
                 className="flex items-center gap-2 text-primary hover:underline text-sm"
+                target="_blank"
               >
                 <span className="material-symbols-outlined text-base">language</span>
                 Portfolio

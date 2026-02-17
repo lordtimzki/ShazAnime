@@ -21,9 +21,9 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [spotifyUrl, setSpotifyUrl] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { videoState, setActiveVideo, savePlaybackTime, setIsPiPVisible } =
+  const { videoState, videoRef, setActiveVideo, setIsPiPVisible, mountVideoTo } =
     useVideo();
 
   useEffect(() => {
@@ -65,23 +65,17 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [songInfo]);
 
-  // Restore playback position when returning from PiP
+  // Mount the shared video element into our container
   useEffect(() => {
-    if (videoRef.current && videoState.currentTime > 0 && themeDetails) {
-      videoRef.current.currentTime = videoState.currentTime;
-      videoRef.current.play().catch(() => {});
+    if (themeDetails?.videoLink && videoContainerRef.current) {
+      const video = videoRef.current;
+      if (video) {
+        video.controls = true;
+        video.className = "w-full h-full object-contain";
+      }
+      mountVideoTo(videoContainerRef.current);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [themeDetails]);
-
-  // Save playback time periodically for PiP handoff
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const handleTimeUpdate = () => savePlaybackTime(video.currentTime);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [themeDetails, savePlaybackTime]);
+  }, [themeDetails, mountVideoTo, videoRef]);
 
   // Fetch Spotify link via Odesli/song.link
   useEffect(() => {
@@ -223,15 +217,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
           {/* Video */}
           <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-primary/20 group border border-primary/50">
             {themeDetails.videoLink ? (
-              <video
-                ref={videoRef}
-                src={themeDetails.videoLink}
-                controls
-                autoPlay
-                className="w-full h-full object-contain"
-              >
-                Your browser does not support the video tag.
-              </video>
+              <div ref={videoContainerRef} className="w-full h-full" />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">

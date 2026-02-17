@@ -3,58 +3,33 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useVideo } from "../contexts/VideoContext";
 
 export default function PiPPlayer() {
-  const { videoState, savePlaybackTime, clearVideo, isPiPVisible } =
+  const { videoState, videoRef, clearVideo, isPiPVisible, mountVideoTo } =
     useVideo();
   const navigate = useNavigate();
   const location = useLocation();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const pipContainerRef = useRef<HTMLDivElement>(null);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Only show PiP when not on /results and there's an active video
   const shouldShow =
     isPiPVisible && location.pathname !== "/results" && videoState.videoUrl;
 
-  // Restore playback time when PiP video loads
+  // Mount the shared video into the PiP container
   useEffect(() => {
-    const video = videoRef.current;
-    if (!shouldShow || !video) return;
-
-    const seekAndPlay = () => {
-      video.currentTime = videoState.currentTime;
-      video.play().catch(() => {});
-    };
-
-    // If video is already loaded enough, seek immediately
-    if (video.readyState >= 1) {
-      seekAndPlay();
-    } else {
-      // Wait for metadata to load before seeking
-      video.addEventListener("loadedmetadata", seekAndPlay, { once: true });
-      return () => video.removeEventListener("loadedmetadata", seekAndPlay);
+    if (shouldShow && pipContainerRef.current) {
+      const video = videoRef.current;
+      if (video) {
+        // Switch to PiP style — no controls, smaller
+        video.controls = false;
+        video.className = "w-full aspect-video bg-black";
+      }
+      mountVideoTo(pipContainerRef.current);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldShow]);
-
-  // Save playback time periodically
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !shouldShow) return;
-
-    const handleTimeUpdate = () => {
-      savePlaybackTime(video.currentTime);
-    };
-
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [shouldShow, savePlaybackTime]);
+  }, [shouldShow, mountVideoTo, videoRef]);
 
   if (!shouldShow) return null;
 
   const handleClick = () => {
-    // Save current time before navigating
-    if (videoRef.current) {
-      savePlaybackTime(videoRef.current.currentTime);
-    }
     navigate("/results", {
       state: { songInfo: videoState.songInfo },
     });
@@ -98,12 +73,7 @@ export default function PiPPlayer() {
         <div className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)] border border-white/10 bg-surface-dark animate-pip-enter">
           {/* Video */}
           <div className="relative cursor-pointer group" onClick={handleClick}>
-            <video
-              ref={videoRef}
-              src={videoState.videoUrl}
-              className="w-full aspect-video bg-black"
-              autoPlay
-            />
+            <div ref={pipContainerRef} className="w-full aspect-video bg-black" />
             {/* Overlay on hover */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-4xl">
