@@ -1,6 +1,36 @@
 import axios from "axios";
 import { AnimeThemeDetails, SongInfo } from "../types/index";
 
+/**
+ * Pick the best video from all theme entries.
+ * Prefers the full, clean OP/ED visual (overlap "None") over overlay/transition versions.
+ * If only transition/overlay versions exist, still returns the best available.
+ */
+function selectBestVideo(entries: any[]): string {
+  const candidates = entries.flatMap((entry: any) =>
+    (entry.videos || []).map((video: any) => ({ ...video, version: entry.version }))
+  );
+
+  if (candidates.length === 0) return "";
+
+  const score = (v: any) => {
+    let s = 0;
+    // Strongly prefer the full clean visual (no transition/overlay)
+    if (v.overlap === "None") s += 100;
+    else if (v.overlap === "Over") s += 50;
+    // "Transition" gets 0
+
+    // Minor tiebreakers — not requirements
+    if (v.nc) s += 10;
+    if (v.source === "BD") s += 5;
+    if (v.resolution >= 1080) s += 2;
+    return s;
+  };
+
+  candidates.sort((a: any, b: any) => score(b) - score(a));
+  return candidates[0].link || "";
+}
+
 const ANIME_THEMES_API_URL = "https://api.animethemes.moe";
 // In production, set VITE_BACKEND_URL to your Render deployment URL
 // In local dev, leave it empty — Vite proxy handles routing
@@ -126,7 +156,7 @@ export async function findAnimeTheme(
             themeType: themeDetails.type,
             sequence: themeDetails.sequence,
             year: themeDetails.anime.year,
-            videoLink: themeDetails.animethemeentries[0]?.videos[0]?.link || "",
+            videoLink: selectBestVideo(themeDetails.animethemeentries),
           };
         }
       }
@@ -184,7 +214,7 @@ export async function findAnimeTheme(
             themeType: themeDetails.type,
             sequence: themeDetails.sequence,
             year: themeDetails.anime.year,
-            videoLink: themeDetails.animethemeentries[0]?.videos[0]?.link || "",
+            videoLink: selectBestVideo(themeDetails.animethemeentries),
           };
         }
       }

@@ -7,8 +7,8 @@ Support for songs in the r/AnimeThemes database (given that they match artist na
 
 ### Stack 
 Frontend: React <br> 
-Backend: TypeScript <br> 
-API: [AuDD](https://audd.io/), [r/AnimeThemes](https://api-docs.animethemes.moe/) <br> 
+Backend: Python <br> 
+API: [ShazamIO](https://github.com/shazamio/ShazamIO), [r/AnimeThemes](https://api-docs.animethemes.moe/) <br> 
 
 
 ### Bugs
