@@ -134,7 +134,6 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
       coverArt: result.coverArt || "",
       appleMusicUrl: result.appleMusicUrl || "",
       appleMusicId: result.appleMusicId || "",
-      spotifyUrl: result.spotifyUrl || "",
       shazamUrl: result.shazamUrl || "",
     };
 
@@ -188,6 +187,18 @@ function themeMatchesArtist(theme: any, mappedArtistName: string): boolean {
       (name) => name.toLowerCase() === target
     )
   );
+}
+
+export async function fetchSpotifyUrl(appleMusicId: string): Promise<string> {
+  if (!appleMusicId) return "";
+  try {
+    const response = await axios.get(`${SHAZAM_BACKEND_URL}/spotify-link`, {
+      params: { adamid: appleMusicId },
+    });
+    return response.data.spotifyUrl || "";
+  } catch {
+    return "";
+  }
 }
 
 export async function findAnimeTheme(

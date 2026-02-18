@@ -89,24 +89,6 @@ async def recognize(file: UploadFile = File(...)):
     # Shazam web URL
     shazam_url = track.get("url", "")
 
-    # Fetch Spotify link via Odesli (server-side to avoid CORS)
-    spotify_url = ""
-    try:
-        async with httpx.AsyncClient() as client:
-            if adamid:
-                odesli_url = f"https://api.song.link/v1-alpha.1/links?platform=appleMusic&type=song&id={adamid}"
-            elif apple_music_url:
-                odesli_url = f"https://api.song.link/v1-alpha.1/links?url={apple_music_url}"
-            else:
-                odesli_url = None
-            if odesli_url:
-                resp = await client.get(odesli_url, timeout=8.0)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    spotify_url = data.get("linksByPlatform", {}).get("spotify", {}).get("url", "")
-    except Exception:
-        pass  # Spotify link is optional
-
     return {
         "title": title,
         "originalTitle": title,
@@ -114,6 +96,25 @@ async def recognize(file: UploadFile = File(...)):
         "coverArt": cover_art,
         "appleMusicUrl": apple_music_url,
         "appleMusicId": adamid or "",
-        "spotifyUrl": spotify_url,
         "shazamUrl": shazam_url,
     }
+
+
+@app.get("/spotify-link")
+async def spotify_link(adamid: str = ""):
+    """Resolve an Apple Music adamid to a Spotify URL via Odesli."""
+    if not adamid:
+        return {"spotifyUrl": ""}
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"https://api.song.link/v1-alpha.1/links?platform=appleMusic&type=song&id={adamid}",
+                timeout=10.0,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                spotify_url = data.get("linksByPlatform", {}).get("spotify", {}).get("url", "")
+                return {"spotifyUrl": spotify_url}
+    except Exception:
+        pass
+    return {"spotifyUrl": ""}

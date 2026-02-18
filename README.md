@@ -14,10 +14,6 @@ API: [ShazamIO](https://github.com/shazamio/ShazamIO), [r/AnimeThemes](https://a
 ### Bugs
 It's not entirely accurate. I've deducted some reasons the audio recognition might not work. <br> 
 <ol>
-  <li>AuDD recognizes the wrong song
-  <ul>
-  <li>Sometimes, it will pick an entirely irrelevant song, pick a song that samples the anime song, or pick a complication song which includes the anime song over the individual track (EX: FLOW ANIME OP * ED Size Special Collection - FLOW) </li>
-  </ul>
 </li>
   <li>
     The recognized song does not have its respective artist listed on the AnimeThemes database.
@@ -25,4 +21,13 @@ It's not entirely accurate. I've deducted some reasons the audio recognition mig
   <li>
     The recognized song does have its respective artist on the database, however, due to localization, it cannot match with the database (both artist/track name). For example, VK Blanka uses the name Vickeblanka on the AnimeThemes database. I've fixed matching for some songs thanks to the fuzzy search of the API, such as Ikimonogakari's Hotaru no Hikari with Hotarunohikari.
   </li>
+</ol>
+
+
+### Songs not Working:
+<ol>
+<li>Reset - Makino</li>
+<li>Do or Die - nano</li>
+<li>All VladLove songs</li>
+<li>illuminate - Minami Kuribayashi(no credit)</li>
 </ol>
