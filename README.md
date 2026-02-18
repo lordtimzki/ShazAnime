@@ -3,7 +3,8 @@ A Web Application that identifies anime openings or endings from audio clips and
 ### Features
 Audio Recognition of anime songs <br> 
 Opening/Ending visuals <br> 
-Support for songs in the r/AnimeThemes database (given that they match artist name) <br> 
+Support for songs in the r/AnimeThemes database (given that it is
+recognized by Shazam) <br> 
 
 ### Stack 
 Frontend: React <br> 
