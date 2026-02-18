@@ -26,8 +26,17 @@ It's not entirely accurate. I've deducted some reasons the audio recognition mig
 
 ### Songs not Working:
 <ol>
-<li>Reset - Makino</li>
-<li>Do or Die - nano</li>
-<li>All VladLove songs</li>
-<li>illuminate - Minami Kuribayashi(no credit)</li>
+<li>Reset - Makino (not recognizable)</li>
+<li>Do or Die - nano (not recognizable)</li>
+<li>All VladLove songs (not recognizable)</li>
+<li>Astride - trysail (not recognizable)</li>
+<li>本日モ誠ニ晴天也 - Makoto Furukawa (not recognizable)</li>
+<li>vivid brilliant door! - Sphere (not recgonizable)</li>
+<li>君を救えるなら僕は何にでもなる - Maon Kurosaki (not recognizable)</li>
+<li>Generation! - JAM Project (not recognizable)</li>
+<li>Believe in Sky - Asami Imai (not recognizable)</li>
+<li>コトノハノオモイ - Sonoko Inoue </li>
+<li>illuminate - Minami Kuribayashi (no credit)</li>
+<li>lolite - Eve (not in AnimeThemes)</li>
+<li>Kyomo Sakuramau Akatsukini - CHiCO (not in AnimeThemes)</li>
 </ol>
