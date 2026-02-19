@@ -15,7 +15,7 @@ module.exports = {
         "text-dim": "#8892b0",
       },
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
+        display: ["Funnel Display", "sans-serif"],
         body: ["Noto Sans", "sans-serif"],
       },
       borderRadius: {

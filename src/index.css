@@ -11,7 +11,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Funnel Display", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   @apply bg-background-dark text-white;
