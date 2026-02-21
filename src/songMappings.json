@@ -1,6 +1,8 @@
 {
+  "Secret Base - Kimigakuretamono (10 Years After Version)" : { "title" : "secret base ~Kimi ga Kureta Mono~ (10 years after ver.)"},
   "the brave": { "title": "Yuusha", "artist": "YOASOBI" },
   "where our blue is": { "title": "Ao no Sumika"},
+  "Kawakiwoameku" : {"title" : "Kawaki wo Ameku", "artist": "Minami"},
   "dawn": { "title": "Reimei", "artist": "Sayuri" },
   "Tower of Flower" : {"title" : "Hana no Tou"},
   "World Secret" : {"title" : "Sekai no Himitsu"},
@@ -32,6 +34,7 @@
   "Reunion (feat. KAF, RIM, Harusaruhi, Isekaijoucho & KOKO)" : {"title" : "Saikai"},
   "Kizuato (Instrumental)" : {"title" : "Kizuato", "type" : "OP", "skipArtistCheck": true},
   "Identity" : {"title" : "Identity", "type" : "OP", "artist": "Mikio Sakai", "skipArtistCheck": true, "animeFilter": "Rakudai Kishi no Cavalry"},
+  "For You" : {"title" : "For You", "type" : "ED", "artist": "AZU", "skipArtistCheck": true, "animeFilter": "Naruto: Shippuuden"},
   "Monster" : {"title" : "Kaibutsu"},
   "Absolute zero" : {"title" : "Zettai Reido"},
   "KokodeIkiteru" : {"title" : "Koko de Ikiteru."},
@@ -55,10 +58,12 @@
   "Stories" : {"title" : "Stories", "type": "OP", "skipArtistCheck": true},
   "One More Chance!!" : {"title" : "One More Chance!!", "type": "OP", "skipArtistCheck": true},
   "Contradiction (feat. Tyler Carter)" : {"title" : "Contradiction feat. Tyler Carter", "type": "OP", "skipArtistCheck": true},
-  "Kiss Me" : {"title" : "Kiss Me", "type": "OP", "skipArtistCheck": true},
-  "Polly Jean" : {"title" : "Kiss Me", "type": "OP", "skipArtistCheck": true},
+  "Kiss Me" : {"title" : "Kiss Me", "type": "OP", "skipArtistCheck": true, "animeFilter" : "Carole & Tuesday"},
+  "Polly Jean" : {"title" : "Polly Jean", "type": "OP", "skipArtistCheck": true, "animeFilter" : "Carole & Tuesday"},
   "Shogeki" : {"title" : "Shougeki", "type": "ED", "skipArtistCheck": true},
-  "Make Debut! (2021 Remastered Version)" : {"title" : "Make Debut!", "type": "OP", "skipArtistCheck": true},
-  "Arigatouwa Kocchino Kotoba" : {"title" : "Arigatou wa Kocchi no Kotoba", "type": "OP", "skipArtistCheck": true}
+  "Make Debut! (2021 Remastered Version)" : {"title" : "Make Debut!", "type": "OP", "skipArtistCheck": true, "animeFilter" : "Uma Musume: Pretty Derby"},
+  "Run for Our Dream! (TV Size)" : {"title" : "Yume wo Kakeru!", "type": "OP", "skipArtistCheck": true, "animeFilter" : "Uma Musume: Pretty Derby Season 2"},
+  "Arigatouwa Kocchino Kotoba" : {"title" : "Arigatou wa Kocchi no Kotoba", "type": "OP", "skipArtistCheck": true},
+  "Only for You" : {"title" : "Only for You", "type": "ED", "skipArtistCheck": true, "animeFilter" : "Housekishou Richard-shi no Nazo Kantei"}
 }
 

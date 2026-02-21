@@ -221,7 +221,7 @@ export async function findAnimeTheme(
     const themeMatchesFilters = (theme: any) =>
       (skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) &&
       (!mappedSongType || theme.type === mappedSongType) &&
-      (!animeFilter || (theme.anime.name as string).toLowerCase().includes(animeFilter));
+      (!animeFilter || (theme.anime.name as string).toLowerCase() === animeFilter);
 
     for (const theme of themes) {
       if (themeMatchesFilters(theme)) {
@@ -255,7 +255,7 @@ export async function findAnimeTheme(
     themes = await searchThemes(mappedArtistName);
 
     for (const theme of themes) {
-      if (themeMatchesArtist(theme, mappedArtistName) && (!mappedSongType || theme.type === mappedSongType) && (!animeFilter || (theme.anime.name as string).toLowerCase().includes(animeFilter))) {
+      if (themeMatchesArtist(theme, mappedArtistName) && (!mappedSongType || theme.type === mappedSongType) && (!animeFilter || (theme.anime.name as string).toLowerCase() === animeFilter)) {
         // Also check if the song title loosely matches
         const themeTitle = (theme.song?.title || "").toLowerCase();
         const searchTitle = mappedSongTitle.toLowerCase();
