@@ -37,7 +37,7 @@ It's not entirely accurate. I've deducted some reasons the audio recognition mig
 <li>Generation! - JAM Project (not recognizable)</li>
 <li>Believe in Sky - Asami Imai (not recognizable)</li>
 <li>コトノハノオモイ - Sonoko Inoue </li>
-<li>illuminate - Minami Kuribayashi (no credit)</li>
 <li>lolite - Eve (not in AnimeThemes)</li>
+<li>CRY - Sawano (not in AnimeThemes)</li>
 <li>Kyomo Sakuramau Akatsukini - CHiCO (not in AnimeThemes)</li>
 </ol>
