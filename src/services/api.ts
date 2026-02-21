@@ -119,6 +119,7 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
   try {
     const response = await axios.post(`${SHAZAM_BACKEND_URL}/recognize`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 25000,
     });
 
     const result = response.data;
