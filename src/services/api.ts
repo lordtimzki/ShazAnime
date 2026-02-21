@@ -79,7 +79,7 @@ async function searchThemes(title: string): Promise<any[]> {
 const artistMappings: Record<string, string> = Object.fromEntries(
   Object.entries(artistMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
 );
-const songMappings: Record<string, { title: string; artist?: string; type?: string; skipArtistCheck?: boolean }> = Object.fromEntries(
+const songMappings: Record<string, { title: string; artist?: string; type?: string; skipArtistCheck?: boolean; animeFilter?: string }> = Object.fromEntries(
   Object.entries(songMappingsJson).map(([k, v]) => [k.toLowerCase(), v])
 );
 
@@ -100,7 +100,7 @@ function getMappedArtistName(artist: string): string {
 /** Returns the mapped song info if one exists (optionally constrained by artist).
  *  The artist filter matches against either the raw Shazam artist or the mapped AnimeThemes artist,
  *  so entries in songMappings can use either name. */
-function getMappedSong(title: string, rawArtist: string, mappedArtist: string): { title: string; type?: string; skipArtistCheck?: boolean } | null {
+function getMappedSong(title: string, rawArtist: string, mappedArtist: string): { title: string; type?: string; skipArtistCheck?: boolean; animeFilter?: string } | null {
   const key = title.trim().toLowerCase();
   const mapping = songMappings[key];
   if (!mapping) return null;
@@ -108,8 +108,8 @@ function getMappedSong(title: string, rawArtist: string, mappedArtist: string): 
     const filter = mapping.artist.toLowerCase();
     if (!rawArtist.toLowerCase().includes(filter) && !mappedArtist.toLowerCase().includes(filter)) return null;
   }
-  console.log(`Song mapping: "${title}" → "${mapping.title}"${mapping.type ? ` (type filter: ${mapping.type})` : ""}${mapping.skipArtistCheck ? " (skipArtistCheck)" : ""}`);
-  return { title: mapping.title, type: mapping.type, skipArtistCheck: mapping.skipArtistCheck };
+  console.log(`Song mapping: "${title}" → "${mapping.title}"${mapping.type ? ` (type filter: ${mapping.type})` : ""}${mapping.skipArtistCheck ? " (skipArtistCheck)" : ""}${mapping.animeFilter ? ` (animeFilter: ${mapping.animeFilter})` : ""}`);
+  return { title: mapping.title, type: mapping.type, skipArtistCheck: mapping.skipArtistCheck, animeFilter: mapping.animeFilter };
 }
 
 export async function identifySong(audioData: Blob): Promise<SongInfo> {
@@ -212,13 +212,19 @@ export async function findAnimeTheme(
     const mappedSongTitle = songMapping?.title ?? songTitle;
     const mappedSongType = songMapping?.type;
     const skipArtistCheck = songMapping?.skipArtistCheck ?? false;
+    const animeFilter = songMapping?.animeFilter?.toLowerCase();
 
     // Search by full title — GraphQL returns all nested data in one query
     let themes = await searchThemes(mappedSongTitle);
 
     // Check artist (and optional type) match across all results
+    const themeMatchesFilters = (theme: any) =>
+      (skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) &&
+      (!mappedSongType || theme.type === mappedSongType) &&
+      (!animeFilter || (theme.anime.name as string).toLowerCase().includes(animeFilter));
+
     for (const theme of themes) {
-      if ((skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) && (!mappedSongType || theme.type === mappedSongType)) {
+      if (themeMatchesFilters(theme)) {
         console.log(`Found match: ${theme.song?.title}`);
         return themeToDetails(theme);
       }
@@ -235,7 +241,7 @@ export async function findAnimeTheme(
       themes = await searchThemes(partialTitle);
 
       for (const theme of themes) {
-        if ((skipArtistCheck || themeMatchesArtist(theme, mappedArtistName)) && (!mappedSongType || theme.type === mappedSongType)) {
+        if (themeMatchesFilters(theme)) {
           console.log(`Found match: ${theme.song?.title}`);
           return themeToDetails(theme);
         }
@@ -249,7 +255,7 @@ export async function findAnimeTheme(
     themes = await searchThemes(mappedArtistName);
 
     for (const theme of themes) {
-      if (themeMatchesArtist(theme, mappedArtistName) && (!mappedSongType || theme.type === mappedSongType)) {
+      if (themeMatchesArtist(theme, mappedArtistName) && (!mappedSongType || theme.type === mappedSongType) && (!animeFilter || (theme.anime.name as string).toLowerCase().includes(animeFilter))) {
         // Also check if the song title loosely matches
         const themeTitle = (theme.song?.title || "").toLowerCase();
         const searchTitle = mappedSongTitle.toLowerCase();
