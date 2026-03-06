@@ -84,7 +84,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
       const video = videoRef.current;
       if (video) {
         video.controls = true;
-        video.className = "w-full h-full object-fill";
+        video.className = "w-full h-full object-contain";
       }
       mountVideoTo(videoContainerRef.current);
     }
