@@ -70,7 +70,7 @@ export default function PiPPlayer() {
         </button>
       ) : (
         /* Expanded PiP */
-        <div className="rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)] border border-white/10 bg-surface-dark animate-pip-enter">
+        <div className="overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.6)] border border-white/10 bg-surface-dark animate-pip-enter">
           {/* Video */}
           <div className="relative cursor-pointer group" onClick={handleClick}>
             <div ref={pipContainerRef} className="w-full aspect-video bg-black" />
@@ -88,7 +88,7 @@ export default function PiPPlayer() {
               <img
                 src={details.animeImage}
                 alt={details.animeName}
-                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-white/10"
+                className="w-9 h-9 object-cover shrink-0 border border-white/10"
               />
             )}
             <div className="flex-1 min-w-0">

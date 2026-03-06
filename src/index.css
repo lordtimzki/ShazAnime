@@ -25,48 +25,12 @@ body {
 
 /* ---- Background patterns ---- */
 .bg-anime-pattern {
-  background-color: #0a1120;
-  background-image: radial-gradient(
-      circle at 15% 50%,
-      rgba(0, 136, 255, 0.08) 0%,
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 85% 30%,
-      rgba(64, 196, 255, 0.05) 0%,
-      transparent 25%
-    ),
-    linear-gradient(to bottom, #0a1120 0%, #101b33 100%);
+  background-color: #0D1317;
 }
 
-.bg-grid-overlay {
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px
-    ),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
-/* ---- Shazam button pulse ---- */
+/* ---- Shazam button (minimal static glow) ---- */
 .shazam-glow {
-  box-shadow: 0 0 0 0 rgba(0, 136, 255, 0.7);
-  animation: shazamPulse 2s infinite;
-}
-
-@keyframes shazamPulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 20px rgba(0, 136, 255, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(0, 136, 255, 0);
-  }
+  box-shadow: 0 0 20px rgba(137, 210, 220, 0.25);
 }
 
 /* ---- Custom scrollbar ---- */
@@ -74,14 +38,14 @@ body {
   width: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #080e1a;
+  background: #0A1114;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #1e3a5f;
+  background: #1E2D35;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #2a528a;
+  background: #2A3E4A;
 }
 
 /* ---- PiP player animation ---- */

@@ -23,9 +23,9 @@ export default function About() {
 
         <div className="space-y-8 animate-fade-in-up">
           {/* App description */}
-          <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
+          <div className="bg-surface-dark border border-white/5 p-6">
             <div className="flex items-center gap-4 mb-4">
-              <div className="size-12 rounded-full bg-gradient-to-tr from-primary to-accent-blue flex items-center justify-center shadow-[0_0_15px_rgba(0,136,255,0.5)]">
+              <div className="size-12 bg-gradient-to-tr from-primary to-accent-blue flex items-center justify-center shadow-[0_0_15px_rgba(0,136,255,0.5)]">
                 <span className="material-symbols-outlined text-2xl text-white">
                   graphic_eq
                 </span>
@@ -47,11 +47,11 @@ export default function About() {
           </div>
 
           {/* How it works */}
-          <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
+          <div className="bg-surface-dark border border-white/5 p-6">
             <h3 className="text-lg font-bold text-white mb-4">How it works</h3>
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="size-8 bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-primary font-bold text-sm">1</span>
                 </div>
                 <div>
@@ -62,7 +62,7 @@ export default function About() {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="size-8 bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-primary font-bold text-sm">2</span>
                 </div>
                 <div>
@@ -73,7 +73,7 @@ export default function About() {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="size-8 bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-primary font-bold text-sm">3</span>
                 </div>
                 <div>
@@ -87,7 +87,7 @@ export default function About() {
           </div>
 
           {/* Credits */}
-          <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
+          <div className="bg-surface-dark border border-white/5 p-6">
             <h3 className="text-lg font-bold text-white mb-4">Credits</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
@@ -120,7 +120,7 @@ export default function About() {
           </div>
 
           {/* Contact / Links placeholder */}
-          <div className="bg-surface-dark border border-white/5 rounded-2xl p-6">
+          <div className="bg-surface-dark border border-white/5 p-6">
             <h3 className="text-lg font-bold text-white mb-3">Links</h3>
             <div className="space-y-2">
               <a

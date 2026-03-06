@@ -132,15 +132,13 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
         <div className="flex flex-col items-center justify-center max-w-[640px] w-full z-10 animate-fade-in-up">
           {/* Icon */}
           <div className="relative mb-10 group cursor-default">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl scale-110"></div>
-            <div className="relative size-40 md:size-48 bg-surface-dark border border-surface-border rounded-full flex items-center justify-center shadow-2xl shadow-primary/10">
-              <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent rounded-full pointer-events-none"></div>
+            <div className="relative size-40 md:size-48 bg-surface-dark border border-surface-border flex items-center justify-center shadow-2xl shadow-primary/10">
               <div className="relative flex flex-col items-center justify-center opacity-90">
                 <span className="material-symbols-outlined text-[80px] md:text-[96px] text-primary/80 drop-shadow-[0_0_15px_rgba(0,136,255,0.4)]">
                   music_off
                 </span>
                 <div
-                  className="absolute top-2 right-6 w-3 h-3 bg-sky-300 rounded-full animate-bounce"
+                  className="absolute top-2 right-6 w-3 h-3 bg-sky-300 animate-bounce"
                   style={{ animationDuration: "2s" }}
                 ></div>
               </div>
@@ -164,9 +162,9 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
             {/* Try Again button */}
             <button
               onClick={() => navigate("/")}
-              className="group relative w-full max-w-[320px] overflow-hidden rounded-xl bg-gradient-to-r from-primary to-[#4FACFE] p-[1px] shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 transform hover:-translate-y-0.5"
+              className="group relative w-full max-w-[320px] overflow-hidden bg-gradient-to-r from-primary to-[#4FACFE] p-[1px] shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-300 transform hover:-translate-y-0.5"
             >
-              <div className="relative flex h-12 items-center justify-center gap-2 rounded-xl bg-primary hover:bg-opacity-0 transition-all duration-300">
+              <div className="relative flex h-12 items-center justify-center gap-2 bg-primary hover:bg-opacity-0 transition-all duration-300">
                 <span
                   className="material-symbols-outlined text-white group-hover:animate-spin"
                   style={{
@@ -191,154 +189,113 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
   const themeLabel = `${themeDetails.themeType}${themeDetails.sequence ? themeDetails.sequence : ""}`;
 
   return (
-    <div className="flex-1 flex flex-col max-w-[1440px] mx-auto w-full p-6 gap-4 animate-fade-in-up">
-      {/* Breadcrumb — above both columns */}
-      <div className="flex items-center gap-2 text-sm">
-        <a
-          className="text-primary hover:underline cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          Scan
-        </a>
-        <span className="text-gray-500">/</span>
-        <span className="text-gray-400">Results</span>
-      </div>
-
-      {/* Two-column layout — video + sidebar aligned */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left column — Video player */}
-        <div className="flex-1 flex flex-col gap-6">
-          {/* Video */}
-          <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-primary/20 group border border-primary/50">
-            {themeDetails.videoLink ? (
-              <div ref={videoContainerRef} className="w-full h-full" />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">
-                    videocam_off
-                  </span>
-                  <p className="text-gray-500">No video available</p>
-                </div>
+    <div className="flex-1 flex flex-col min-h-0 animate-fade-in-up">
+      <div className="flex flex-col flex-1 min-h-0 max-w-4xl mx-auto w-full p-4 gap-3">
+        {/* Video — fills all available height, object-contain maintains ratio */}
+        <div className="flex-1 min-h-0 relative bg-black overflow-hidden border border-primary/50">
+          {themeDetails.videoLink ? (
+            <div ref={videoContainerRef} className="w-full h-full" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="text-center">
+                <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">
+                  videocam_off
+                </span>
+                <p className="text-gray-500">No video available</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-      {/* Right column — Details sidebar */}
-      <aside className="w-full lg:w-[380px] flex flex-col gap-6 shrink-0">
-        {/* Song info card */}
-        <div className="bg-surface-dark border border-white/5 rounded-2xl p-6 flex flex-col gap-6 relative overflow-hidden">
-          {/* Glow accent */}
-          <div className="absolute -top-20 -right-20 size-64 bg-primary/20 blur-[80px] rounded-full pointer-events-none"></div>
-
-          {/* Song header */}
-          <div className="relative z-10 flex gap-5 items-start">
-            {/* Album art */}
+        {/* Bottom card: album art left, info + re-record right */}
+        <div className="shrink-0 flex border border-white/5">
+          {/* Album art — stretches to fill card height, no filler */}
+          <div className="shrink-0 w-36 sm:w-44">
             {songInfo.coverArt ? (
               <img
-                className="size-24 rounded-lg shadow-lg object-cover bg-surface-darker border border-white/10 shrink-0"
+                className="w-full h-full object-cover"
                 src={songInfo.coverArt}
                 alt={`${songInfo.title} album art`}
               />
             ) : (
-              <div className="size-24 rounded-lg shadow-lg bg-surface-darker border border-white/10 shrink-0 flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-gray-600">
-                  album
-                </span>
+              <div className="w-full h-full min-h-[120px] bg-surface-darker flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-gray-600">album</span>
               </div>
             )}
-
-            <div className="flex flex-col gap-1">
-              {/* Theme type badge */}
-              <span className="inline-flex items-center justify-center w-fit px-2 py-0.5 rounded text-[10px] font-bold bg-primary text-white mb-1">
-                {themeLabel}
-              </span>
-              <h1 className="text-2xl font-bold text-primary leading-tight animate-slide-right [animation-delay:400ms]">
-                {themeDetails.songName}
-              </h1>
-              <p className="text-accent-blue font-medium animate-slide-right [animation-delay:600ms]">
-                {themeDetails.artistNames.length > 0 ? themeDetails.artistNames.join(", ") : songInfo.artist}
-              </p>
-            </div>
           </div>
 
-          {/* Anime info */}
-          <div className="relative z-10 space-y-4">
-            <div className="p-4 bg-surface-darker rounded-xl border border-white/5">
-              <p className="text-xs text-primary font-bold uppercase tracking-wider mb-1">
-                From the Series
-              </p>
-              <h3 className="text-lg font-bold text-white">
-                {themeDetails.animeName}
-              </h3>
-              <p className="text-xs text-gray-500 mt-1">
-                Released {themeDetails.year}
-              </p>
-            </div>
-
-            {/* Streaming links row */}
-            {(songInfo.appleMusicUrl || spotifyUrl) && (
-              <div className="flex gap-3">
-                {/* Apple Music button */}
+          {/* Right side: info top, re-record bottom */}
+          <div className="flex-1 flex flex-col bg-surface-dark p-4 gap-3 min-w-0 justify-between">
+            <div className="flex flex-col gap-1 min-w-0">
+              {/* Badge row with inline streaming icons */}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-primary text-background-dark">
+                  {themeLabel}
+                </span>
                 {songInfo.appleMusicUrl && (
                   <a
                     href={songInfo.appleMusicUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#FA243C]/10 hover:bg-[#FA243C]/20 text-[#FA243C] rounded-lg transition-colors border border-[#FA243C]/20"
+                    title="Apple Music"
+                    className="text-[#FA243C] hover:opacity-70 transition-opacity"
                   >
-                    <svg className="size-5" fill="currentColor" viewBox="0 0 16 16">
+                    <svg className="size-4" fill="currentColor" viewBox="0 0 16 16">
                       <path d="m10.995 0 .573.001q.241 0 .483.007c.35.01.705.03 1.051.093.352.063.68.166.999.329a3.36 3.36 0 0 1 1.47 1.468c.162.32.265.648.328 1 .063.347.084.7.093 1.051q.007.241.007.483l.001.573v5.99l-.001.573q0 .241-.008.483c-.01.35-.03.704-.092 1.05a3.5 3.5 0 0 1-.33 1 3.36 3.36 0 0 1-1.468 1.468 3.5 3.5 0 0 1-1 .33 7 7 0 0 1-1.05.092q-.241.007-.483.008l-.573.001h-5.99l-.573-.001q-.241 0-.483-.008a7 7 0 0 1-1.052-.092 3.6 3.6 0 0 1-.998-.33 3.36 3.36 0 0 1-1.47-1.468 3.6 3.6 0 0 1-.328-1 7 7 0 0 1-.093-1.05Q.002 11.81 0 11.568V5.005l.001-.573q0-.241.007-.483c.01-.35.03-.704.093-1.05a3.6 3.6 0 0 1 .329-1A3.36 3.36 0 0 1 1.9.431 3.5 3.5 0 0 1 2.896.1 7 7 0 0 1 3.95.008Q4.19.002 4.432 0h.573zm-.107 2.518-4.756.959H6.13a.66.66 0 0 0-.296.133.5.5 0 0 0-.16.31c-.004.027-.01.08-.01.16v5.952c0 .14-.012.275-.106.39-.095.115-.21.15-.347.177l-.31.063c-.393.08-.65.133-.881.223a1.4 1.4 0 0 0-.519.333 1.25 1.25 0 0 0-.332.995c.031.297.166.582.395.792.156.142.35.25.578.296.236.047.49.031.858-.043.196-.04.38-.102.555-.205a1.4 1.4 0 0 0 .438-.405 1.5 1.5 0 0 0 .233-.55c.042-.202.052-.386.052-.588V6.347c0-.276.08-.35.302-.404.024-.005 3.954-.797 4.138-.833.257-.049.378.025.378.294v3.524c0 .14-.001.28-.096.396-.094.115-.211.15-.348.178l-.31.062c-.393.08-.649.133-.88.223a1.4 1.4 0 0 0-.52.334 1.26 1.26 0 0 0-.34.994c.03.297.174.582.404.792a1.2 1.2 0 0 0 .577.294c.237.048.49.03.858-.044.197-.04.381-.098.556-.202a1.4 1.4 0 0 0 .438-.405q.173-.252.233-.549a2.7 2.7 0 0 0 .044-.589V2.865c0-.273-.143-.443-.4-.42-.04.003-.383.064-.424.073" />
                     </svg>
-                    <span className="text-sm font-bold">Apple Music</span>
                   </a>
                 )}
-
-                {/* Spotify button */}
                 {spotifyUrl && (
                   <a
                     href={spotifyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-center justify-center gap-2 p-3 bg-[#1DB954]/10 hover:bg-[#1DB954]/20 text-[#1DB954] rounded-lg transition-colors border border-[#1DB954]/20"
+                    title="Spotify"
+                    className="text-[#1DB954] hover:opacity-70 transition-opacity"
                   >
-                    <svg className="size-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
                     </svg>
-                    <span className="text-sm font-bold">Spotify</span>
+                  </a>
+                )}
+                {songInfo.shazamUrl && (
+                  <a
+                    href={songInfo.shazamUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Shazam"
+                    className="text-primary hover:opacity-70 transition-opacity"
+                  >
+                    <svg className="size-4" fill="currentColor" viewBox="0 0 50 50">
+                      <path d="M25,2C12.32,2,2,12.32,2,25s10.32,23,23,23s23-10.32,23-23S37.68,2,25,2z M14.23,30.74c-3.51-3.51-3.51-9.24,0-12.73 l7.55-7.56c0.34-0.35,0.8-0.55,1.29-0.58c0.54-0.01,1.04,0.19,1.41,0.58c0.74,0.75,0.71,1.94-0.03,2.67l-7.55,7.55 c-2.06,2.06-2.06,5.34,0,7.4c2.05,2.06,5.33,2.06,7.39,0l3.78-3.77c0.02-0.03,0.03-0.04,0.06-0.06c0.75-0.72,1.94-0.7,2.67,0.06 c0.72,0.75,0.69,1.94-0.06,2.67l-3.78,3.77C23.47,34.24,17.73,34.24,14.23,30.74z M35.77,32l-7.55,7.55 c-0.01,0.02-0.03,0.03-0.06,0.06c-0.74,0.71-1.94,0.69-2.66-0.06c-0.73-0.76-0.7-1.95,0.05-2.68l7.55-7.54 c2.06-2.06,2.06-5.35,0-7.41c-2.05-2.04-5.33-2.04-7.39,0l-3.78,3.79c-0.02,0.01-0.03,0.04-0.06,0.05 c-0.75,0.72-1.94,0.69-2.67-0.05c-0.72-0.76-0.69-1.95,0.06-2.67l3.78-3.78c1.74-1.76,4.06-2.63,6.37-2.63 c2.3,0,4.61,0.87,6.36,2.63C39.28,22.76,39.28,28.5,35.77,32z" />
+                    </svg>
                   </a>
                 )}
               </div>
-            )}
+              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight animate-slide-right [animation-delay:100ms]">
+                {themeDetails.animeName}
+              </h1>
+              <p className="text-primary font-medium text-sm animate-slide-right [animation-delay:250ms]">{themeDetails.songName}</p>
+              <p className="text-text-dim font-light text-sm animate-slide-right [animation-delay:400ms]">
+                {themeDetails.artistNames.length > 0
+                  ? themeDetails.artistNames.join(", ")
+                  : songInfo.artist}
+              </p>
+            </div>
 
-            {/* Shazam link */}
-            {songInfo.shazamUrl && (
-              <a
-                href={songInfo.shazamUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 p-3 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors border border-primary/20 w-full"
-              >
-                <span className="material-symbols-outlined text-lg">open_in_new</span>
-                <span className="text-sm font-bold">View on Shazam</span>
-              </a>
-            )}
+            {/* Re-record — pushed to bottom of card */}
+            <RecordButton
+              compact
+              onIdentified={(newSongInfo) => {
+                if (videoRef.current) videoRef.current.pause();
+                onNewSong(newSongInfo);
+              }}
+              onClick={() => {
+                if (videoRef.current) videoRef.current.pause();
+              }}
+            />
           </div>
         </div>
-
-        {/* Re-scan button */}
-        <RecordButton
-          compact
-          onIdentified={(newSongInfo) => {
-            if (videoRef.current) videoRef.current.pause();
-            onNewSong(newSongInfo);
-          }}
-          onClick={() => {
-            if (videoRef.current) videoRef.current.pause();
-          }}
-        />
-      </aside>
       </div>
     </div>
   );

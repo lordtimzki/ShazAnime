@@ -51,7 +51,7 @@ export default function History() {
         {/* Empty state */}
         {history.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 animate-fade-in-up">
-            <div className="size-20 bg-surface-dark border border-surface-border rounded-full flex items-center justify-center mb-5">
+            <div className="size-20 bg-surface-dark border border-surface-border flex items-center justify-center mb-5">
               <span className="material-symbols-outlined text-[36px] text-primary/50">
                 history
               </span>
@@ -64,7 +64,7 @@ export default function History() {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold text-sm transition-colors"
+              className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-bold text-sm transition-colors"
             >
               Identify a Song
             </button>
@@ -80,17 +80,17 @@ export default function History() {
               return (
                 <div
                   key={entry.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-surface-dark/60 hover:bg-surface-dark border border-white/5 transition-colors"
+                  className="flex items-center gap-3 p-3 bg-surface-dark/60 hover:bg-surface-dark border border-white/5 transition-colors"
                 >
                   {/* Anime art */}
                   {entry.animeImage ? (
                     <img
                       src={entry.animeImage}
                       alt={entry.animeName}
-                      className="size-11 rounded-lg object-cover shrink-0 border border-white/10"
+                      className="size-11 object-cover shrink-0 border border-white/10"
                     />
                   ) : (
-                    <div className="size-11 rounded-lg bg-surface-darker border border-white/10 shrink-0 flex items-center justify-center">
+                    <div className="size-11 bg-surface-darker border border-white/10 shrink-0 flex items-center justify-center">
                       <span className="material-symbols-outlined text-lg text-gray-600">
                         movie
                       </span>
@@ -109,7 +109,7 @@ export default function History() {
 
                   {/* Badge + time */}
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-[10px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold bg-primary/20 text-primary px-1.5 py-0.5">
                       {label}
                     </span>
                     <span className="text-[10px] text-text-dim">{timeAgo}</span>

@@ -22,55 +22,47 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 grid grid-cols-3 items-center px-6 py-4 md:px-10 border-b border-surface-border backdrop-blur-md bg-background-dark/80">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 md:px-10 border-b border-surface-border backdrop-blur-md bg-background-dark/80">
         {/* Left — Logo */}
-        <div
-          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        <button
+          type="button"
+          className="flex items-center cursor-pointer hover:opacity-80 transition-opacity text-left"
           onClick={() => handleNavigate("/")}
         >
-          <div className="flex items-center justify-center size-10 rounded-full bg-gradient-to-tr from-primary to-accent-blue text-white shadow-[0_0_15px_rgba(0,136,255,0.5)]">
-            <span className="material-symbols-outlined text-2xl">
-              graphic_eq
-            </span>
-          </div>
-          <h2 className="text-white text-xl font-bold tracking-tight">
-            ShazAnime
+          <h2 className="text-xl font-bold tracking-tight uppercase">
+            <span className="text-primary">SHAZ</span>
+            <span className="text-white">ANIME</span>
           </h2>
-        </div>
+        </button>
 
-        {/* Center — Nav */}
-        <nav className="hidden md:flex items-center justify-center gap-8">
+        {/* Right — Nav */}
+        <nav className="flex items-center justify-end gap-6 md:gap-8">
           <button
-            onClick={() => handleNavigate("/history")}
-            className={`hover:text-white transition-colors text-sm font-medium ${
-              location.pathname === "/history"
-                ? "text-white"
-                : "text-text-dim"
+            onClick={() => handleNavigate("/")}
+            className={`hover:text-white transition-colors text-sm font-medium uppercase ${
+              location.pathname === "/" ? "text-white" : "text-text-dim"
             }`}
           >
-            History
+            Home
           </button>
           <button
             onClick={() => handleNavigate("/about")}
-            className={`hover:text-white transition-colors text-sm font-medium ${
-              location.pathname === "/about"
-                ? "text-white"
-                : "text-text-dim"
+            className={`hover:text-white transition-colors text-sm font-medium uppercase ${
+              location.pathname === "/about" ? "text-white" : "text-text-dim"
             }`}
           >
             About
           </button>
-        </nav>
-
-        {/* Right — Mobile menu */}
-        <div className="flex items-center justify-end gap-4">
           <button
-            className="md:hidden text-white"
             onClick={() => handleNavigate("/history")}
+            className={`hover:text-white transition-colors text-sm font-medium uppercase flex items-center gap-1 ${
+              location.pathname === "/history" ? "text-white" : "text-text-dim"
+            }`}
           >
-            <span className="material-symbols-outlined">history</span>
+            <span className="md:hidden material-symbols-outlined text-lg">history</span>
+            <span>History</span>
           </button>
-        </div>
+        </nav>
       </header>
 
       {/* Main content */}

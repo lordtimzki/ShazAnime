@@ -167,14 +167,12 @@ export default function RecordButton({
       <button
         onClick={handleRecord}
         disabled={isProcessing}
-        className="w-full flex items-center justify-center gap-3 py-4 bg-primary hover:bg-primary-dark text-white rounded-xl shadow-[0_0_20px_rgba(0,136,255,0.3)] transition-all transform hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(0,136,255,0.5)] group disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-3 py-3 rounded-full bg-primary hover:bg-primary-dark text-background-dark font-bold shadow-[0_0_20px_rgba(137,210,220,0.2)] transition-all hover:shadow-[0_0_30px_rgba(137,210,220,0.35)] group disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <div className="p-1.5 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors">
-          <span className="material-symbols-outlined text-2xl">
-            {isProcessing ? "hourglass_top" : isRecording ? "stop" : "mic"}
-          </span>
-        </div>
-        <span className="text-lg font-bold tracking-wide">
+        <span className="material-symbols-outlined text-xl">
+          {isProcessing ? "hourglass_top" : isRecording ? "stop" : "mic"}
+        </span>
+        <span className="text-sm font-bold tracking-wide">
           {isProcessing
             ? "Identifying..."
             : isRecording
@@ -188,24 +186,18 @@ export default function RecordButton({
   // Full-size version for home page
   return (
     <div className="relative group my-8">
-      {/* Outer ping ring */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 md:w-80 md:h-80 rounded-full border border-primary/20 opacity-50 animate-ping-slow"></div>
-      {/* Inner pulse circle */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 rounded-full bg-primary/5 animate-pulse"></div>
-
       {/* Main button */}
       <button
         onClick={handleRecord}
         disabled={isProcessing}
         aria-label={isRecording ? "Stop listening" : "Start listening"}
-        className={`shazam-glow relative flex items-center justify-center w-36 h-36 md:w-48 md:h-48 rounded-full text-white z-20 group-active:scale-95 transition-transform duration-200 disabled:opacity-50 ${
+        className={`shazam-glow relative flex items-center justify-center w-36 h-36 md:w-48 md:h-48 rounded-full z-20 group-active:scale-95 transition-transform duration-200 disabled:opacity-50 ${
           isRecording
-            ? "bg-gradient-to-b from-red-400 to-red-600"
-            : "bg-gradient-to-b from-[#40c4ff] to-[#0066cc]"
+            ? "bg-red-500 text-white"
+            : "bg-primary text-background-dark"
         }`}
       >
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <span className="material-symbols-outlined !text-[4.5rem] md:!text-[5.5rem] drop-shadow-md">
+        <span className="material-symbols-outlined !text-[4.5rem] md:!text-[5.5rem]">
           {isProcessing ? "hourglass_top" : isRecording ? "stop" : "mic"}
         </span>
       </button>
@@ -213,7 +205,7 @@ export default function RecordButton({
       {/* Bottom label */}
       <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-full whitespace-nowrap">
         <div className="flex flex-col items-center gap-3">
-          <span className="text-white font-bold text-xl tracking-wide drop-shadow-sm group-hover:text-accent-blue transition-colors">
+          <span className="text-white font-bold text-xl tracking-wide drop-shadow-sm group-hover:text-primary transition-colors">
             {isProcessing
               ? "Identifying..."
               : isRecording
@@ -221,7 +213,7 @@ export default function RecordButton({
               : "Click to Identify"}
           </span>
           {(isRecording || isProcessing) && (
-            <div className="flex items-center gap-2 text-sm text-accent-blue font-medium bg-surface-dark/50 px-4 py-1.5 rounded-full border border-primary/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 text-sm text-accent-blue font-medium bg-surface-dark/50 px-4 py-1.5 border border-primary/20 backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-blue opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-blue"></span>
