@@ -46,14 +46,6 @@ export default function Layout({ children }: LayoutProps) {
             Home
           </button>
           <button
-            onClick={() => handleNavigate("/about")}
-            className={`hover:text-white transition-colors text-sm font-medium uppercase ${
-              location.pathname === "/about" ? "text-white" : "text-text-dim"
-            }`}
-          >
-            About
-          </button>
-          <button
             onClick={() => handleNavigate("/history")}
             className={`hover:text-white transition-colors text-sm font-medium uppercase flex items-center gap-1 ${
               location.pathname === "/history" ? "text-white" : "text-text-dim"
@@ -61,6 +53,14 @@ export default function Layout({ children }: LayoutProps) {
           >
             <span className="md:hidden material-symbols-outlined text-lg">history</span>
             <span>History</span>
+          </button>
+          <button
+            onClick={() => handleNavigate("/about")}
+            className={`hover:text-white transition-colors text-sm font-medium uppercase ${
+              location.pathname === "/about" ? "text-white" : "text-text-dim"
+            }`}
+          >
+            About
           </button>
         </nav>
       </header>

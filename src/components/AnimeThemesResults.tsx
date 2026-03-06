@@ -207,10 +207,10 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
           )}
         </div>
 
-        {/* Bottom card: album art left, info + re-record right */}
-        <div className="shrink-0 flex border border-white/5">
-          {/* Album art — stretches to fill card height, no filler */}
-          <div className="shrink-0 w-36 sm:w-44">
+        {/* Bottom card: fixed height so art width = card height = perfect square */}
+        <div className="shrink-0 flex border border-white/5 h-40 sm:h-44">
+          {/* Album art — w equals card h, so it's a true square */}
+          <div className="shrink-0 w-40 sm:w-44 overflow-hidden">
             {songInfo.coverArt ? (
               <img
                 className="w-full h-full object-cover"
@@ -225,7 +225,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
           </div>
 
           {/* Right side: info top, re-record bottom */}
-          <div className="flex-1 flex flex-col bg-surface-dark p-4 gap-3 min-w-0 justify-between">
+          <div className="flex-1 flex flex-col bg-surface-dark py-3 px-4 gap-2 min-w-0 justify-between">
             <div className="flex flex-col gap-1 min-w-0">
               {/* Badge row with inline streaming icons */}
               <div className="flex items-center gap-2 mb-1">
