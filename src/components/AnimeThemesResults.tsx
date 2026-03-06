@@ -229,7 +229,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
             <div className="flex flex-col gap-1 min-w-0">
               {/* Badge row with inline streaming icons */}
               <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-primary text-background-dark">
+                <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-bold bg-primary text-background-dark rounded">
                   {themeLabel}
                 </span>
                 {songInfo.appleMusicUrl && (
