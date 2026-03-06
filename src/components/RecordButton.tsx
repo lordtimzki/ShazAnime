@@ -167,7 +167,7 @@ export default function RecordButton({
       <button
         onClick={handleRecord}
         disabled={isProcessing}
-        className="w-full flex items-center justify-center gap-3 py-2 rounded-md bg-primary hover:bg-primary-dark text-background-dark font-bold shadow-[0_0_20px_rgba(137,210,220,0.2)] transition-all hover:shadow-[0_0_30px_rgba(137,210,220,0.35)] group disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 py-1.5 rounded-md bg-primary hover:bg-primary-dark text-background-dark font-bold shadow-[0_0_20px_rgba(137,210,220,0.2)] transition-all hover:shadow-[0_0_30px_rgba(137,210,220,0.35)] group disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       >
         <span className="material-symbols-outlined text-xl">
           {isProcessing ? "hourglass_top" : isRecording ? "stop" : "mic"}

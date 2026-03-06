@@ -71,16 +71,18 @@ export default function Layout({ children }: LayoutProps) {
       {/* Floating PiP player */}
       <PiPPlayer />
 
-      {/* Footer */}
-      <footer className="w-full border-t border-surface-border bg-surface-darker py-6 px-6 mt-auto relative z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-center">
-          <p className="text-text-dim text-xs opacity-60">
-            Powered by{" "}
-            <span className="text-accent-blue font-medium">ShazamIO</span> &{" "}
-            <span className="text-accent-blue font-medium">AnimeThemes</span>
-          </p>
-        </div>
-      </footer>
+      {/* Footer — hidden on results page so video layout fills exact viewport */}
+      {location.pathname !== "/results" && (
+        <footer className="w-full border-t border-surface-border bg-surface-darker py-6 px-6 mt-auto relative z-10">
+          <div className="max-w-6xl mx-auto flex items-center justify-center">
+            <p className="text-text-dim text-xs opacity-60">
+              Powered by{" "}
+              <span className="text-accent-blue font-medium">ShazamIO</span> &{" "}
+              <span className="text-accent-blue font-medium">AnimeThemes</span>
+            </p>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }

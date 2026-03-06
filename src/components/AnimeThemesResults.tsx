@@ -84,7 +84,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
       const video = videoRef.current;
       if (video) {
         video.controls = true;
-        video.className = "w-full h-full object-contain";
+        video.className = "w-full h-full object-fill";
       }
       mountVideoTo(videoContainerRef.current);
     }
@@ -189,28 +189,33 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
   const themeLabel = `${themeDetails.themeType}${themeDetails.sequence ? themeDetails.sequence : ""}`;
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 animate-fade-in-up">
-      <div className="flex flex-col flex-1 min-h-0 max-w-4xl mx-auto w-full p-4 gap-3">
-        {/* Video — fills all available height, object-contain maintains ratio */}
-        <div className="flex-1 min-h-0 relative bg-black overflow-hidden border border-primary/50">
-          {themeDetails.videoLink ? (
-            <div ref={videoContainerRef} className="w-full h-full" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="text-center">
-                <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">
-                  videocam_off
-                </span>
-                <p className="text-gray-500">No video available</p>
+    <div className="h-[calc(100vh-72px)] flex flex-col overflow-hidden animate-fade-in-up">
+      <div className="flex flex-col flex-1 min-h-0 max-w-4xl mx-auto w-full p-3 gap-3">
+        {/* Shared width wrapper so video and card line up */}
+        <div
+          className="mx-auto w-full flex flex-col gap-3"
+          style={{ maxWidth: 'calc((100vh - 300px) * 16 / 9)' }}
+        >
+          {/* Video — 16:9 container */}
+          <div className="w-full aspect-video relative bg-black overflow-hidden border border-primary/50">
+            {themeDetails.videoLink ? (
+              <div ref={videoContainerRef} className="w-full h-full" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <span className="material-symbols-outlined text-6xl text-gray-600 mb-4">
+                    videocam_off
+                  </span>
+                  <p className="text-gray-500">No video available</p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Bottom card: fixed height so art width = card height = perfect square */}
-        <div className="shrink-0 flex border border-white/5 h-40 sm:h-44 rounded-tr-lg rounded-br-lg">
-          {/* Album art — w equals card h, so it's a true square */}
-          <div className="shrink-0 w-40 sm:w-44 overflow-hidden">
+          {/* Bottom card: fixed height so art width = card height = perfect square */}
+          <div className="shrink-0 flex border border-white/5 h-40 sm:h-44">
+            {/* Album art — w equals card h, so it's a true square */}
+            <div className="shrink-0 w-40 sm:w-44 overflow-hidden">
             {songInfo.coverArt ? (
               <img
                 className="w-full h-full object-cover"
@@ -225,7 +230,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
           </div>
 
           {/* Right side: info top, re-record bottom */}
-          <div className="flex-1 flex flex-col bg-surface-dark pt-3 pb-4 px-4 gap-2 min-w-0 justify-between rounded-tr-lg rounded-br-lg">
+          <div className="flex-1 flex flex-col bg-surface-dark py-3 px-4 gap-1.5 min-w-0 justify-between">
             <div className="flex flex-col gap-1 min-w-0">
               {/* Badge row with inline streaming icons */}
               <div className="flex items-center gap-2 mb-1">
@@ -272,11 +277,11 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
                   </a>
                 )}
               </div>
-              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight animate-slide-right [animation-delay:100ms]">
+              <h1 className="text-base sm:text-lg font-bold text-white leading-tight line-clamp-2 animate-slide-right [animation-delay:100ms]">
                 {themeDetails.animeName}
               </h1>
-              <p className="text-primary font-medium text-sm animate-slide-right [animation-delay:250ms]">{themeDetails.songName}</p>
-              <p className="text-text-dim font-light text-sm animate-slide-right [animation-delay:400ms]">
+              <p className="text-primary font-medium text-xs sm:text-sm truncate animate-slide-right [animation-delay:250ms]">{themeDetails.songName}</p>
+              <p className="text-text-dim font-light text-xs sm:text-sm truncate animate-slide-right [animation-delay:400ms]">
                 {themeDetails.artistNames.length > 0
                   ? themeDetails.artistNames.join(", ")
                   : songInfo.artist}
@@ -295,6 +300,7 @@ const AnimeThemeResults: React.FC<AnimeThemeResultsProps> = ({
               }}
             />
           </div>
+        </div>
         </div>
       </div>
     </div>
