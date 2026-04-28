@@ -47,10 +47,8 @@ const SEARCH_QUERY = `
         song {
           title
           performances {
-            artist {
-              ... on Artist { name }
-              ... on Membership { group { name } member { name } }
-            }
+            artist { name }
+            member { name }
           }
         }
         anime {
@@ -145,15 +143,11 @@ export async function identifySong(audioData: Blob): Promise<SongInfo> {
   }
 }
 
-/** Get all artist names from a performance (handles both Artist and Membership types) */
-function getPerformanceNames(artist: any): string[] {
-  if (!artist) return [];
-  // Artist type has name directly
-  if (artist.name) return [artist.name];
-  // Membership type has group.name and member.name
+/** Get all artist names from a performance (artist + optional member). */
+function getPerformanceNames(performance: any): string[] {
   const names: string[] = [];
-  if (artist.group?.name) names.push(artist.group.name);
-  if (artist.member?.name) names.push(artist.member.name);
+  if (performance?.artist?.name) names.push(performance.artist.name);
+  if (performance?.member?.name) names.push(performance.member.name);
   return names;
 }
 
@@ -168,7 +162,7 @@ function themeToDetails(theme: any): AnimeThemeDetails {
 
   return {
     artistNames: (theme.song?.performances || []).flatMap(
-      (p: any) => getPerformanceNames(p.artist)
+      (p: any) => getPerformanceNames(p)
     ),
     songName: theme.song?.title || "",
     animeName: theme.anime.name,
@@ -184,7 +178,7 @@ function themeToDetails(theme: any): AnimeThemeDetails {
 function themeMatchesArtist(theme: any, mappedArtistName: string): boolean {
   const target = mappedArtistName.toLowerCase();
   return (theme.song?.performances || []).some(
-    (p: any) => getPerformanceNames(p.artist).some(
+    (p: any) => getPerformanceNames(p).some(
       (name) => name.toLowerCase() === target
     )
   );
